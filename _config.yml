@@ -1,1 +1,4 @@
 theme: jekyll-theme-cayman
+type: git
+repository: http://github.com/enx533/enx533.github.io.git
+branch: master
