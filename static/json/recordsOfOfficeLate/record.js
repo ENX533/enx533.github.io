@@ -1,4 +1,4 @@
-export default [
+[
   {
     date: '2019-01-18',
     data: [
