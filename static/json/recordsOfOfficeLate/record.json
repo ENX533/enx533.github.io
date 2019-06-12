@@ -981,5 +981,40 @@
         "amount": 15
       }
     ]
+  },
+  {
+    "date": "2019-06-10",
+    "data": [
+      {
+        "person": "廖文超",
+        "time": 5,
+        "amount": 15
+      }
+    ]
+  },
+  {
+    "date": "2019-06-11",
+    "data": [
+      {
+        "person": "陈恒",
+        "time": 5,
+        "amount": 15
+      }
+    ]
+  },
+  {
+    "date": "2019-06-12",
+    "data": [
+      {
+        "person": "麦少英",
+        "time": 3,
+        "amount": 9
+      },
+      {
+        "person": "陈恒",
+        "time": 5,
+        "amount": 15
+      }
+    ]
   }
 ]
