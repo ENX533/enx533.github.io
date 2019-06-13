@@ -1016,5 +1016,25 @@
         "amount": 15
       }
     ]
+  },
+  {
+    "date": "2019-06-13",
+    "data": [
+      {
+        "person": "麦少英",
+        "time": 2,
+        "amount": 6
+      },
+      {
+        "person": "梁福志",
+        "time": 5,
+        "amount": 15
+      },
+      {
+        "person": "陈恒",
+        "time": 5,
+        "amount": 15
+      }
+    ]
   }
 ]
