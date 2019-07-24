@@ -26,6 +26,7 @@ cssnext，使用最新的css。
 2. 写完内容，保存下，vscode帮我们自动保存了一份同名编译出来的css文件，这里是**test.css**。
 3. 命令行打开进入到当前目录，执行**postcss test.css -o test.css**，将会跑postcss的配置项，对test.css进行补充前缀、压缩代码等处理。
 <br>
+
 ---
 
 附件
@@ -54,6 +55,7 @@ package.json里scripts添加**"hello": "node autocss.js"**
 <br>
 创建autocss.js，以后直接**npm run hello / yarn hello**即可打包代码里指定的某目录里的全部css文件。
 <br>
+
 
 autocss.js参考：
 
