@@ -20,12 +20,14 @@ cssnano，css压缩。
 <br>
 cssnext，使用最新的css。
 <br>
+
 ## 使用
 1. 项目里新建 .less文件，如**test.less**，vscode打开，编写样式。
 2. 写完内容，保存下，vscode帮我们自动保存了一份同名编译出来的css文件，这里是**test.css**。
 3. 命令行打开进入到当前目录，执行**postcss test.css -o test.css**，将会跑postcss的配置项，对test.css进行补充前缀、压缩代码等处理。
 <br>
 ---
+
 附件
 1. postcss.config.js文件，用来指定postcss使用的插件的文件。
 ```js
