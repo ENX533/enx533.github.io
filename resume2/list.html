@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>list</title>
+  <style>
+    html, body, div, iframe, ul, li, span, a { margin: 0; padding: 0;}
+    a { text-decoration: none;}
+    html, body { height: 100%;}
+    .container { position: relative; height: 100%;}
+    .header { position: absolute; top: 0; right: 0; left: 0; height: 60px; background: #23262e; text-align: center; line-height: 60px; font-size: 14px; color: #fff;}
+    .menuCon { position: absolute; top: 60px; bottom: 0; left: 0; width: 200px; overflow: hidden; background: #393d49;}
+    .menu { width: 220px; height: 100%; overflow: hidden; overflow-y: auto;}
+    .list { width: 200px;}
+    .list span { position: relative; display: block; cursor: pointer; -webkit-transition: background linear .15s; transition: background linear .15s; padding: 0 20px; height: 45px; background: #393d49; line-height: 45px; font-size: 14px; color: #fff;}
+    .list { position: relative;}
+    .list:before { content: ''; position: absolute; z-index: 1; top: 0; -webkit-transform: scale(0); transform: scale(0); left: 0; -webkit-transition: transform linear .15s; transition: transform linear .15s; width: 5px; height: 45px; background: #009688;}
+    .list:hover:before { -webkit-transform: scale(1); transform: scale(1);}
+    .list span:hover { background: #4e5463;}
+    .list span:after { content: ''; position: absolute; top: 50%; -webkit-transform: translateY(-50%); transform: translateY(-50%); right: 10px; -webkit-transition: margin linear .15s; transition: margin linear .15s; -webkit-transition-property: border, margin; transition-property: border, margin; margin-top: 3px; border: 6px transparent solid; border-top-color: #fff;}
+    .list span.open:after { margin-top: -3px; border-top-color: transparent; border-bottom-color: #fff;}
+    .list span ~ ul { height: 0; overflow: hidden;}
+    .list span.open ~ ul { height: initial;}
+    .list ul a { display: block; padding: 0 20px; height: 45px; background: #282b33; line-height: 45px; font-size: 14px; color: rgba(255, 255, 255, .7);}
+    .list ul a:hover { color: #fff;}
+    .list ul a.selected { background: #009688; color: #fff;}
+    .page { box-sizing: border-box; padding: 60px 0 0 200px; height: 100%; font-size: 0;}
+    .page iframe { width: 100%; height: 100%;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">ENX533</div>
+    <div class="menuCon">
+      <div class="menu">
+        <div class="list">
+          <span class="open" onclick="this.classList.toggle('open')">主页</span>
+          <ul>
+            <li><a class="selected" href="javascript:" to="./resume/projects/templet/JSpratise/DIYapi/index.html">旧版1</a></li>
+          </ul>
+        </div>
+        <div class="list">
+          <span onclick="this.classList.toggle('open')">项目</span>
+          <ul>
+            <li><a href="javascript:" to="https://tongmeng.dg-mall.com">通盟</a></li>
+            <li><a href="javascript:" to="./resume/index.html">简历1</a></li>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+          </ul>
+        </div>
+        <div class="list">
+          <span onclick="this.classList.toggle('open')">常用</span>
+          <ul>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+          </ul>
+        </div>
+        <div class="list">
+          <span onclick="this.classList.toggle('open')">练习</span>
+          <ul>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+            <li><a href="javascript:">123</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="page">
+      <iframe id="iframe" src="https://enx533.github.io/resume/projects/templet/JSpratise/DIYapi/index.html" frameborder="0"></iframe>
+    </div>
+  </div>
+  <script>
+    var oIFrame = document.getElementById('iframe');
+    var aA = document.getElementsByTagName('a');
+    for (var i = 0, len = aA.length; i < len; i++) {
+      var oA = aA[i];
+      oA.onclick = function () {
+        var sSrc = this.getAttribute('to');
+        fnClickA(this, sSrc);
+      }
+    }
+    function fnClickA (oElem, sSrc) {
+      if (sSrc.charAt(0) === '.') {
+        // if (/[0-9]{1,3}(\.[0-9]{1,3}){3}/.test(window.location.origin)) {
+        sSrc = sSrc.replace('.', 'https://enx533.github.io');
+        // }
+      }
+      for (var i = 0, len = aA.length; i < len; i++) {
+        aA[i].classList.remove('selected');
+      }
+      oElem.classList.add('selected');
+      oIFrame.src = sSrc;
+    }
+
+    // window.navigator.userAgent
+
+    // 'PC'
+    // "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.26 Safari/537.36 Core/1.63.6788.400 QQBrowser/10.3.2864.400"
+
+    // 'Galaxy S5'
+    // "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.26 Mobile Safari/537.36"
+
+    // 'iPhone 7'
+    // "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1"
+
+  </script>
+</body>
+</html>
