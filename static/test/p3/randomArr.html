@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <title>随机数组且每个都不一样</title>
+    <style>
+      html, body, div { margin: 0; padding: 0; }
+      .desk { display: flex; justify-content: space-between; align-items: center;}
+      .stage, .result { flex: 0 0 80px;}
+      .item { display: inline-block; margin: 5px; box-sizing: border-box; border: 1px #d1d1d1 solid; width: 50px; height: 50px; text-align: center; line-height: 50px; background: #eee;}
+      .btn { cursor: pointer; width: 100px; height: 50px;}
+    </style>
+  </head>
+  <body>
+    <div class="desk">
+      <div id="stage" class="stage"></div>
+      <div><button class="btn" onclick="getResult()">打乱</button></div>
+      <div id="result" class="result"></div>
+    </div>
+    <script>
+      var oStage = document.getElementById('stage');
+      var oResult = document.getElementById('result');
+      var arr1 = [];
+      var arr2 = [];
+      var bSucc = false;
+      var nCount = 15;
+      for (var i = 0; i < 15; i++) {
+        arr1.push({
+          k: i,
+          v: i + 1
+        });
+      }
+      arr1.forEach(function (item) {
+        var oItem = document.createElement('div');
+        oItem.className = 'item';
+        oItem.innerHTML = item.v;
+        oStage.appendChild(oItem);
+      });
+      function getResult () {
+        bSucc = false;
+        while (!bSucc) {
+          getRandomArr2();
+          if (!judge()) {
+            bSucc = true;
+            oResult.innerHTML = '';
+            arr2.forEach(function (item) {
+              var oItem = document.createElement('div');
+              oItem.className = 'item';
+              oItem.innerHTML = item.v;
+              oResult.appendChild(oItem);
+            });
+          }
+        }
+      }
+      function getRandomArr2 () {
+        arr2 = [].concat(arr1);
+        for (var i = 0; i < nCount * 10; i++) {
+          var nRan = Math.floor(Math.random() * nCount);
+          var nSave = arr2.splice(nRan, 1);
+          arr2 = nSave.concat(arr2);
+        }
+      }
+      function judge () {
+        var bSame = false;
+        for (var i = 0; i < nCount; i++) {
+          if (arr1[i] === arr2[i]) {
+            bSame = true;
+            break;
+          }
+        }
+        return bSame;
+      }
+    </script>
+  </body>
+</html>

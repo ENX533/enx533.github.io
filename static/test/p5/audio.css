@@ -1,0 +1,175 @@
+html,
+body,
+div,
+audio,
+b,
+span {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: #f7f7f7;
+}
+div {
+  box-sizing: border-box;
+}
+.content {
+  position: relative;
+  margin: 0 auto;
+  padding: 15px;
+  width: 375px;
+  min-height: 667px;
+  background: #fff;
+}
+.content .audioCom {
+  position: relative;
+  border: 1px #eaeaea solid;
+  padding: 0 25px;
+  height: 80px;
+  background: #fdfdfd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.content .audioCom .left {
+  position: relative;
+  border: 2px #00a0e9 solid;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 0;
+}
+.content .audioCom .left b {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-1px, -50%) scale(1.2);
+  box-sizing: border-box;
+}
+.content .audioCom .left b:nth-child(1) {
+  left: 7px;
+  border: 4px transparent solid;
+  border-radius: 50%;
+  /* border-top: none; */
+  /* border-bottom: none; */
+  border-right-color: #00a0e9;
+}
+.content .audioCom .left b:nth-child(2) {
+  left: 2px;
+  border: 2px transparent solid;
+  border-radius: 50%;
+  border-right-color: #00a0e9;
+  width: 18px;
+  height: 18px;
+}
+.content .audioCom .left b:nth-child(3) {
+  left: -1px;
+  border: 2px transparent solid;
+  border-radius: 50%;
+  border-right-color: #00a0e9;
+  width: 26px;
+  height: 26px;
+}
+@keyframes twinkle2 {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes twinkle3 {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.content .audioCom .left.twinkle b:nth-child(2) {
+  -webkit-animation: twinkle2 0.6s linear infinite;
+  animation: twinkle2 0.6s linear infinite;
+}
+.content .audioCom .left.twinkle b:nth-child(3) {
+  -webkit-animation: twinkle3 0.6s linear infinite;
+  animation: twinkle3 0.6s linear infinite;
+}
+.content .audioCom .right {
+  position: relative;
+  flex: 1;
+  padding-left: 15px;
+}
+.content .audioCom .right .processBar {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 1;
+  height: 30px;
+}
+.content .audioCom .right .processBar:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 1px;
+  background: #ccc;
+}
+.content .audioCom .right .processBar .processBarActive {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 1px;
+  background: #00a0e9;
+}
+.content .audioCom .right .processBar .processBarActive b {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 3px;
+  width: 7px;
+  height: 16px;
+  background: #00a0e9;
+  box-shadow: 0px 1px 7.00125px 0px rgba(254, 72, 76, 0.65);
+  /* opacity: .5; */
+}
+.content .audioCom .right .processNum {
+  pointer-events: none;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  left: 15px;
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  justify-content: space-between;
+}
+.audio {
+  margin-top: 15px;
+  box-sizing: border-box;
+  width: 100%;
+}

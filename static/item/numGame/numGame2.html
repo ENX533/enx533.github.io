@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>数字华容道</title>
+    <style>
+      html, body, div, h1, p, ul, li, a, span { margin: 0; padding: 0;}
+      a { text-decoration: none; -webkit-tap-highlight-color: transparent;}
+      body { min-height: 100vh; background: #f7f7f7;}
+      .gameDifficultySelection { padding: 15px 0;}
+      .gameDifficultySelection h1 { margin-bottom: 15px; text-align: center; font-size: 28px; color: #333;}
+      .gameDifficultySelection p { text-align: center; font-size: 14px; color: #999;}
+      .gameDifficultySelection li { padding: 15px; font-size: 0;}
+      .gameDifficultySelection li a { box-sizing: border-box; border: 1px #ededed solid; height: 40px; box-shadow: 0 0 1.333vw rgba(0,0,0,.08); background: #fff; display: flex; justify-content: center; align-items: center; font-size: 18px; color: #333;}
+      .gameContainer { padding: 15px;}
+      .gameContainer h1 { position: relative; margin-bottom: 15px; text-align: center; font-size: 28px; color: #333;}
+      .gameContainer h1:before { content: attr(diff); position: absolute; bottom: 0; left: 50%; -webkit-transform: translate(-50%, 100%); translate(-50%, 100%); line-height: 1; font-size: 10px; color: #999;}
+      .gameContainer .gameStage { position: relative; display: flex; flex-wrap: wrap; justify-content: center; background: #ededed; font-size: 0;}
+      .gameContainer .gameStage .item { position: absolute; display: inline-block; box-sizing: border-box; border: 1px #ededed solid; background: #fff; font-size: 24px; -webkit-transition: opacity .3s linear; transition: opacity .3s linear; -webkit-transition-property: top, left, opacity; transition-property: top, left, opacity;}
+      .gameContainer .gameStage.num .item { background: #fff !important;}
+      .gameContainer .gameStage.num .item span { opacity: 1;}
+      .gameContainer .gameStage.succ .item { border-color: transparent;}
+      .gameContainer .gameStage .item.hide { opacity: 0; }
+      /* .gameContainer .gameStage .item.hide:before { content: ''; position: absolute; z-index: 1; top: 0; right: 0; bottom: 0; left: 0; background: #ededed;} */
+      .gameContainer .gameStage .item span { opacity: 0; position: absolute; top: 50%; left: 50%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%);}
+      .gameContainer .msg { -webkit-transition: opacity .3s linear; transition: opacity .3s linear; text-align: center; line-height: 40px; color: #00a0e9; font-size: 18px; font-weight: bolder;}
+      .gameContainer .btns a { display: block; box-sizing: border-box; margin-top: 15px; border: 1px #ededed solid; height: 40px; box-shadow: 0 0 1.333vw rgba(0,0,0,.08); background: #fff; display: flex; justify-content: center; align-items: center; font-size: 18px; color: #333;}
+      .gameContainer .gameStage.num ~ .btns a.changeTypeImg { display: flex;}
+      .gameContainer .gameStage.num ~ .btns a.changeTypeNum { display: none;}
+      .gameContainer .gameStage.num ~ .btns a.diyImg { display: none;}
+      .gameContainer .btns a.changeTypeImg { display: none;}
+      .gameContainer .btns a.changeTypeNum { display: flex;}
+      .gameContainer .btns a.diyImg { display: flex;}
+      .gameContainer .btns .file { opacity: 0; pointer-events: none;}
+    </style>
+  </head>
+  <body>
+    <div class="gameDifficultySelection">
+      <h1>数字华容道</h1>
+      <p>请选择游戏难度</p>
+      <ul>
+        <li><a href="javascript:;" onclick="selectGameDiff(3, '菜鸟')">菜鸟</a></li>
+        <li><a href="javascript:;" onclick="selectGameDiff(4, '新手')">新手</a></li>
+        <li><a href="javascript:;" onclick="selectGameDiff(5, '入门')">入门</a></li>
+        <li><a href="javascript:;" onclick="selectGameDiff(6, '进阶')">进阶</a></li>
+        <li><a href="javascript:;" onclick="selectGameDiff(7, '困难')">困难</a></li>
+      </ul>
+    </div>
+    <div class="gameContainer" style="display: none;">
+      <h1 id="tit" diff="菜鸟">数字华容道</h1>
+      <div class="gameStage num succ"></div>
+      <div class="msg" id="msg">00:00:00</div>
+      <div class="btns">
+        <a href="javascript:" class="changeTypeImg" id="changeTypeImg">切换图片版</a>
+        <a href="javascript:" class="changeTypeNum" id="changeTypeNum">切换数字版</a>
+        <a href="javascript:" class="selectAgain" id="selectAgain">重新选择难度</a>
+        <a href="javascript:" class="diyImg" id="diyImg">上传自定义图片</a>
+        <input type="file" class="file" id="file" onchange="chooseImg()">
+      </div>
+    </div>
+  </body>
+  <script>
+    // 原生js小游戏，code by 429457385@qq.com 2020.1.7
+    // 元素
+    var oGameDifficultySelection = document.getElementsByClassName('gameDifficultySelection')[0];
+    var oGameContainer = document.getElementsByClassName('gameContainer')[0];
+    var oGameStage = document.getElementsByClassName('gameStage')[0];
+    var btnChangeTypeImg = document.getElementById('changeTypeImg');
+    var btnChangeTypeNum = document.getElementById('changeTypeNum');
+    var btnSelectAgain = document.getElementById('selectAgain');
+    var btnDiyImg = document.getElementById('diyImg');
+    var oFile = document.getElementById('file');
+    var oMsg = document.getElementById('msg');
+    var oTit = document.getElementById('tit');
+
+    // 变量
+    var nDifficulty = 3; // 游戏难度 n * n
+    var nBlockSum = 9; // 总方块数
+    var sGameStageWidth = 0; // 游戏舞台的总宽度/高度，用于计算方块定位、宽高
+    var aElems = []; // 主要操作对象
+    var aJudge = []; // 胜利判断条件
+    var nNowHideBlockNum = 0 // 可移动位置
+    var sBg = '1.jpg'; // 背景图
+    var dStartTime = 0; // 开始时间戳
+    var dNowTime = 0; // 当前时间戳记录
+    var tCountSeconds = null; // 时间定时器
+    var bSub8 = false; // 是否需要减去8小时
+    var bInitinging = false; // 是否初始化中
+    var nMoveCount = 0; // 操作步数
+
+    // 方法
+    // 选择游戏难度
+    function selectGameDiff (gameDifficulty, difficultyDegree) {
+      // 全局变量赋值
+      nDifficulty = gameDifficulty;
+      nBlockSum = gameDifficulty * gameDifficulty;
+      // 切换界面
+      oTit.setAttribute('diff', difficultyDegree);
+      oGameDifficultySelection.style.display = 'none';
+      oGameContainer.style.display = 'block';
+      // 初始化游戏界面
+      initGame();
+    }
+    // 初始化游戏界面
+    function initGame () {
+      bInitinging = true;
+      nMoveCount = 0;
+      if (oGameStage.classList.contains('succ')) oGameStage.classList.remove('succ');
+      sGameStageWidth = oGameStage.clientWidth;
+      oGameStage.style.height = sGameStageWidth + 'px';
+      oGameStage.innerHTML = '';
+      var sBlockWidth = parseInt(sGameStageWidth / nDifficulty);
+      aElems = [];
+      aJudge = [];
+      for (var i = 0; i < nDifficulty; i++) {
+        for (var j = 0; j < nDifficulty; j++) {
+          var oBlock = document.createElement('div');
+          var obj = {};
+          var value = i * nDifficulty + j + 1;
+          aJudge.push(value);
+          obj.val = value;
+          oBlock.setAttribute('value', value);
+          oBlock.innerHTML = '<span>' + value + '</span>';
+          oBlock.className = 'item';
+          var l = j * sBlockWidth;
+          var t = i * sBlockWidth;
+          obj.x = j;
+          obj.y = i;
+          obj.left = l + 'px';
+          obj.top = t + 'px';
+          oBlock.style.left = l + 'px';
+          oBlock.style.top = t + 'px';
+          oBlock.style.width = sBlockWidth + 'px';
+          oBlock.style.height = sBlockWidth + 'px';
+          oBlock.style.backgroundSize = sGameStageWidth + 'px ' + sGameStageWidth + 'px';
+          oBlock.style.backgroundPosition = '-' + l + 'px -' + t + 'px';
+          oBlock.style.backgroundImage = 'url(' + sBg + ')';
+          obj.el = oBlock;
+          obj.isHide = false;
+          oGameStage.appendChild(oBlock);
+          // 方块的点击事件
+          oBlock.onclick = function () {
+            var value = this.getAttribute('value');
+            var nClickedIndex = getIndexByValue(value);
+            var oClicked = aElems[nClickedIndex];
+            var nNowHideBlockIndex = getIndexByValue(nNowHideBlockNum);
+            var oNowHideBlock = aElems[nNowHideBlockIndex];
+            if (oClicked.isHide || !oNowHideBlock.isHide) return;
+            if (
+              (oClicked.x === oNowHideBlock.x && oClicked.y !== oNowHideBlock.y) ||
+              (oClicked.x !== oNowHideBlock.x && oClicked.y === oNowHideBlock.y)
+            ) {
+              moveBlocks(nClickedIndex, nNowHideBlockIndex);
+            }
+          }
+          aElems.push(obj);
+        }
+      }
+      // 随机抠除方块
+      nNowHideBlockNum = Math.floor(Math.random() * nBlockSum) + 1
+      aElems[nNowHideBlockNum - 1].isHide = true;
+      aElems[nNowHideBlockNum - 1].el.classList.add('hide');
+      randomMove();
+      countSeconds();
+      bInitinging = false;
+    }
+    // 随机移动方块 初始化游戏
+    function randomMove () {
+      var nRanTimes = Math.floor(Math.random() * 50) + 100 * nDifficulty;
+      for (var i = 0; i < nRanTimes; i++) {
+        var nNowHideBlockIndex = getIndexByValue(nNowHideBlockNum);
+        var oNowHideBlock = aElems[nNowHideBlockIndex];
+        var nToMoveIndex = 0;
+        if (Math.random() < 0.7) {
+          var nRanDirection = Math.floor(Math.random() * 4);
+          switch (nRanDirection) {
+            case 0:
+              nToMoveIndex = (nNowHideBlockIndex - nDifficulty + nBlockSum) % nBlockSum;
+              break;
+            case 1:
+              nToMoveIndex = (nNowHideBlockIndex + 1) % nDifficulty === 0 ? nNowHideBlockIndex - 1 : nNowHideBlockIndex + 1;
+              break;
+            case 2:
+              nToMoveIndex = (nNowHideBlockIndex + nDifficulty + nBlockSum) % nBlockSum;
+              break;
+            case 3:
+              nToMoveIndex = nNowHideBlockIndex % nDifficulty === 0 ? nNowHideBlockIndex + 1 : nNowHideBlockIndex - 1;
+              break;
+          }
+        } else {
+          var nRanDirection = Math.floor(Math.random() * 2);
+          switch (nRanDirection) {
+            case 0:
+              // 固定x + y
+              nToMoveIndex = (nNowHideBlockIndex % nDifficulty) + Math.floor(Math.random() * nDifficulty) * nDifficulty;
+              break;
+            case 1:
+              // 固定y + x
+              nToMoveIndex = (nNowHideBlockIndex - (nNowHideBlockIndex % nBlockSum)) + Math.floor(Math.random() * nDifficulty);
+              break;
+          }
+        }
+        aElems[nToMoveIndex].el.click();
+      }
+    }
+    // 查找元素在数组里的index
+    function getIndexByValue (value) {
+      var index = 0;
+      for (var i = 0; i < nBlockSum; i++) {
+        if (aElems[i].val === Number(value)) {
+          index = i;
+          break;
+        }
+      }
+      return index;
+    }
+    // 移动方块
+    function moveBlocks (nClickedIndex, nNowHideBlockIndex) {
+      var oClicked = aElems[nClickedIndex];
+      var oNowHideBlock = aElems[nNowHideBlockIndex];
+
+      var nClickedX = oClicked.x;
+      var nClickedY = oClicked.y;
+      var nNowHideBlockX = oNowHideBlock.x;
+      var nNowHideBlockY = oNowHideBlock.y;
+
+      var bMoveX = !(nClickedX === nNowHideBlockX)
+      var bMoveY = !(nClickedY === nNowHideBlockY)
+      var sMoveDirection = 'toRight'
+
+      if (bMoveX) {
+        if (nNowHideBlockX - nClickedX > 0) {
+          sMoveDirection = 'toRight'
+        } else {
+          sMoveDirection = 'toLeft'
+        }
+      } else if (bMoveY) {
+        if (nNowHideBlockY - nClickedY > 0) {
+          sMoveDirection = 'toBottom'
+        } else {
+          sMoveDirection = 'toTop'
+        }
+      }
+
+      switch (sMoveDirection) {
+        case 'toRight':
+          changeElemsBy('r', nClickedX, nClickedY, nNowHideBlockX, nNowHideBlockY)
+          break
+        case 'toLeft':
+          changeElemsBy('l', nClickedX, nClickedY, nNowHideBlockX, nNowHideBlockY)
+          break
+        case 'toBottom':
+          changeElemsBy('b', nClickedX, nClickedY, nNowHideBlockX, nNowHideBlockY)
+          break
+        case 'toTop':
+          changeElemsBy('t', nClickedX, nClickedY, nNowHideBlockX, nNowHideBlockY)
+          break
+        default:
+          break
+      }
+      if (bInitinging) return;
+      nMoveCount++;
+      oMsg.innerHTML = '用时 ' + getCostTime() + ' 步数 ' + nMoveCount;
+      if (judgeVictory()) {
+        var nNowHideBlockIndex = getIndexByValue(nNowHideBlockNum);
+        var oNowHideBlock = aElems[nNowHideBlockIndex];
+        oNowHideBlock.isHide = false;
+        clearInterval(tCountSeconds);
+        // oMsg.innerHTML = '恭喜！你赢了！用时 ' + getCostTime();
+        oMsg.innerHTML = '你赢了！用时 ' + getCostTime() + ' 步数 ' + nMoveCount;
+        setTimeout(function () {
+          oNowHideBlock.el.classList.remove('hide');
+          oGameStage.classList.add('succ');
+        }, 300);
+      }
+    }
+    function changeElemsBy (direction, x1, y1, x0, y0) {
+      var arr = []
+      aElems.forEach(function (item, index) {
+        if (direction === 'r') {
+          if (item.y === y1 && item.x >= x1 && item.x <= x0) arr.push({
+            item: item,
+            index: index
+          })
+        } else if (direction === 'l') {
+          if (item.y === y1 && item.x <= x1 && item.x >= x0) arr.push({
+            item: item,
+            index: index
+          })
+        } else if (direction === 'b') {
+          if (item.x === x1 && item.y >= y1 && item.y <= y0) arr.push({
+            item: item,
+            index: index
+          })
+        } else if (direction === 't') {
+          if (item.x === x1 && item.y <= y1 && item.y >= y0) arr.push({
+            item: item,
+            index: index
+          })
+        }
+      })
+      switch (direction) {
+        case 'r':
+        case 'b':
+          changeElemsIndex(arr, 'asc')
+          break
+        case 'l':
+        case 't':
+          changeElemsIndex(arr, 'desc')
+          break
+      }
+    }
+    function changeElemsIndex (arr, order) {
+      if (order === 'asc') {
+        var nSaveX0 = arr[0].item.x
+        var nSaveY0 = arr[0].item.y
+        var nSaveLeft0 = arr[0].item.left
+        var nSaveTop0 = arr[0].item.top
+        var oSaveItem = arr[arr.length - 1].item
+        for (var i = 0; i < arr.length; i++) {
+          if (i + 1 < arr.length) {
+            arr[i].item.x = arr[i + 1].item.x
+            arr[i].item.y = arr[i + 1].item.y
+            arr[i].item.left = arr[i + 1].item.left
+            arr[i].item.top = arr[i + 1].item.top
+          } else {
+            arr[i].item.x = nSaveX0
+            arr[i].item.y = nSaveY0
+            arr[i].item.left = nSaveLeft0
+            arr[i].item.top = nSaveTop0
+          }
+          arr[i].item.el.style.left = arr[i].item.left
+          arr[i].item.el.style.top = arr[i].item.top
+        }
+        for (var i = arr.length - 1; i >= 0 ; i--) {
+          if (i === 0) {
+            aElems[arr[i].index] = oSaveItem
+          } else {
+            aElems[arr[i].index] = aElems[arr[i - 1].index]
+          }
+        }
+      } else if (order === 'desc') {
+        var nSaveX0 = arr[arr.length - 1].item.x
+        var nSaveY0 = arr[arr.length - 1].item.y
+        var nSaveLeft0 = arr[arr.length - 1].item.left
+        var nSaveTop0 = arr[arr.length - 1].item.top
+        var oSaveItem = arr[0].item
+        for (var i = arr.length - 1; i >= 0; i--) {
+          if (i !== 0) {
+            arr[i].item.x = arr[i - 1].item.x
+            arr[i].item.y = arr[i - 1].item.y
+            arr[i].item.left = arr[i - 1].item.left
+            arr[i].item.top = arr[i - 1].item.top
+          } else {
+            arr[i].item.x = nSaveX0
+            arr[i].item.y = nSaveY0
+            arr[i].item.left = nSaveLeft0
+            arr[i].item.top = nSaveTop0
+          }
+          arr[i].item.el.style.left = arr[i].item.left
+          arr[i].item.el.style.top = arr[i].item.top
+        }
+        for (var i = 0; i < arr.length ; i++) {
+          if (i === arr.length - 1) {
+            aElems[arr[i].index] = oSaveItem
+          } else {
+            aElems[arr[i].index] = aElems[arr[i + 1].index]
+          }
+        }
+      }
+    }
+    // 判断完成游戏
+    function judgeVictory () {
+      var arr = [];
+      aElems.forEach(function (item) {
+        arr.push(item.val);
+      });
+      if (arr.join(' ') === aJudge.join(' ')) return true;
+      return false;
+    }
+    // 切换图片版
+    btnChangeTypeImg.onclick = function () {
+      if (oGameStage.classList.contains('num')) {
+        oGameStage.classList.remove('num');
+      }
+      // btnChangeTypeImg.style.display = 'none';
+      // btnChangeTypeNum.style.display = 'block';
+    }
+    // 切换数字版
+    btnChangeTypeNum.onclick = function () {
+      if (!oGameStage.classList.contains('num')) {
+        oGameStage.classList.add('num');
+      }
+      // btnChangeTypeImg.style.display = 'block';
+      // btnChangeTypeNum.style.display = 'none';
+    }
+    // 重新选择难度
+    btnSelectAgain.onclick = function () {
+      // 切换界面
+      oGameDifficultySelection.style.display = 'block';
+      oGameContainer.style.display = 'none';
+      clearInterval(tCountSeconds);
+    }
+    // 自定义图片
+    btnDiyImg.onclick = function () {
+      oFile.click();
+    }
+    function chooseImg () {
+      sBg = URL.createObjectURL(oFile.files[0])
+      aElems.forEach(function (item) {
+        item.el.style.backgroundImage = 'url(' + sBg + ')';
+      });
+    }
+    // 统计操作
+    function getDouble (num) {
+      num = parseInt(num);
+      return num >= 10 ? '' + num : '0' + num; 
+    }
+    function getCostTime () {
+      var date = new Date(dNowTime - dStartTime);
+      var nHour = getDouble(bSub8 ? date.getHours() - 8 : date.getHours());
+      var nMinute = getDouble(date.getMinutes());
+      var nSecond = getDouble(date.getSeconds());
+      return nHour + ':' + nMinute + ':' + nSecond;
+    }
+    function countSeconds () {
+      oMsg.innerHTML = '用时 00:00:00 步数 0';
+      dStartTime = new Date().getTime();
+      if (new Date(0).getHours() === 8) {
+        bSub8 = true;
+      }
+      clearInterval(tCountSeconds);
+      tCountSeconds = setInterval(function () {
+        dNowTime = new Date().getTime();
+        oMsg.innerHTML = '用时 ' + getCostTime() + ' 步数 ' + nMoveCount;
+      }, 1000);
+    }
+  </script>
+</html>

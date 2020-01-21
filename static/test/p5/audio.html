@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>audio component</title>
+    <link rel="stylesheet" href="audio.css">
+  </head>
+  <body>
+    <div class="content">
+      <input type="range">
+      <div class="audioCom">
+        <!-- <div class="left twinkle"> -->
+        <div class="left" id="audioIcon">
+          <b></b>
+          <b></b>
+          <b></b>
+        </div>
+        <div class="right">
+          <div class="processBar" id="processBar">
+            <div id="processBarActive" class="processBarActive" style="width: 0px;">
+              <b id="processBarBlock" style="left: 0px;"></b>
+            </div>
+          </div>
+          <div class="processNum">
+            <span id="nowTime">00:00</span>
+            <span id="allTime">00:00</span>
+          </div>
+        </div>
+      </div>
+      <audio class="audio" id="audio" controls src="周杰伦 - 我不配.wav"></audio>
+    </div>
+    <script>
+      // http://www.imooc.com/article/72008
+      // 音频总时长
+      var duration = 288
+
+      var oAudio = document.getElementById('audio');
+      var oNowTime = document.getElementById('nowTime');
+      var oAllTime = document.getElementById('allTime');
+      var oAudioIcon = document.getElementById('audioIcon');
+      var oProcessBar = document.getElementById('processBar');
+      var oProcessBarBlock = document.getElementById('processBarBlock');
+      var oProcessBarActive = document.getElementById('processBarActive');
+      var bDrag = false;
+
+      // 进度条 x
+      var nPL = getTruePos(oProcessBar, 'left');
+      // 进度条 width
+      var nPW = oProcessBar.clientWidth;
+
+      // 获取相对于页面的位置值 必须每一级元素都声明了position: relative;
+      function getTruePos (obj, type) {
+        var prop = '';
+        var val = 0;
+        var elem = obj;
+
+        if (type === 'left') prop = 'offsetLeft';
+        while (elem.parentNode) {
+          if (elem[prop]) val += elem[prop];
+          elem = elem.parentNode;
+        }
+        if (elem[prop]) val += elem[prop];
+        return val;
+        // return elem[prop];
+      }
+      // 补全两位数
+      function toDouble (num) {
+        return num >= 10 ? '' + num : '0' + num;
+      }
+      // 获取时长格式字符串
+      function getMMss (str) {
+        var secends = parseInt(str);
+        var minutes = toDouble(Math.floor(secends/60));
+        secends = toDouble(secends % 60);
+        return minutes + ':' + secends;
+      }
+
+      // 设置音频时长
+      oAllTime.innerHTML = getMMss(duration);
+
+      // 按钮点击事件
+      oAudioIcon.onclick = function () {
+        // if (this.classList.contains('twinkle')) {
+        //   this.classList.remove('twinkle');
+        // } else {
+        //   this.classList.add('twinkle');
+        // }
+        if (oAudio.paused) {
+          oAudio.play();
+        } else {
+          oAudio.pause();
+        }
+      }
+      // 播放 切换播放按钮显示状态
+      oAudio.onplay = function () {
+        oAudioIcon.classList.add('twinkle');
+      }
+      // 暂停 切换暂停按钮显示状态
+      oAudio.onpause = function () {
+        oAudioIcon.classList.remove('twinkle');
+      }
+      // 音频播放中事件
+      oAudio.ontimeupdate = function (e) {
+        if (!bDrag) {
+          x = nPW * (oAudio.currentTime / duration);
+          if (x < 0) x = 0;
+          if (x > nPW) x = nPW;
+          setProcessBarAndNum(x);
+          oNowTime.innerHTML = getMMss(oAudio.currentTime);
+        }
+      }
+      // 设置滚动条
+      function setProcessBarAndNum (x) {
+        oProcessBarBlock.style.left = x + 'px';
+        oProcessBarActive.style.width = x + 'px';
+        oNowTime.innerHTML = getMMss(parseInt(duration * (x / nPW)));
+      };
+
+      function pBBlockMouseDown (e) {
+        e.stopPropagation();
+        bDrag = true;
+        // if (!oAudio.paused) oAudio.pause();
+        // document.removeEventListener('mousemove');
+        // document.removeEventListener('mouseup');
+      }
+      function docMouseMove(e) {
+        if (!bDrag) return;
+        var x = (e.clientX || e.changedTouches[0].clientX) - nPL;
+        if (x < 0) x = 0;
+        if (x > nPW) x = nPW;
+        setProcessBarAndNum(x);
+      }
+      function docMouseUp (e) {
+        if (!bDrag) return;
+        var x = (e.clientX || e.changedTouches[0].clientX) - nPL;
+        if (x < 0) x = 0;
+        if (x > nPW) x = nPW;
+        setProcessBarAndNum(x);
+        oAudio.currentTime = parseInt(duration * (x / nPW));
+        // oAudio.play();
+
+        // document.removeEventListener('mousemove');
+        // document.removeEventListener('mouseup');
+        bDrag = false;
+      }
+      // 拖拽滑块
+      oProcessBarBlock.addEventListener('mousedown', pBBlockMouseDown);
+      oProcessBarBlock.addEventListener('touchstart', pBBlockMouseDown);
+      document.addEventListener('mousemove', docMouseMove);
+      document.addEventListener('touchmove', docMouseMove);
+      document.addEventListener('mouseup', docMouseUp);
+      document.addEventListener('touchend', docMouseUp);
+
+      // 点击滚动条
+      oProcessBar.onclick = function (e) {
+        var x = e.clientX - nPL;
+        if (x < 0) x = 0;
+        if (x > nPW) x = nPW;
+        setProcessBarAndNum(x);
+        oAudio.currentTime = parseInt(duration * (x / nPW));
+      }
+    </script>
+  </body>
+</html>

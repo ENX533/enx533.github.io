@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>数字华容道</title>
+  </head>
+  <body>
+    <div id="numHuarongRoad">
+      <div class="game">
+        <div class="block_1">1</div>
+        <div class="block_2">2</div>
+        <div class="block_3">3</div>
+        <div class="block_4">4</div>
+        <div class="block_5">5</div>
+        <div class="block_6">6</div>
+        <div class="block_7">7</div>
+        <div class="block_8">8</div>
+        <div class="block_9">9</div>
+        <div class="block_10">10</div>
+        <div class="block_11">11</div>
+        <div class="block_12">12</div>
+        <div class="block_13">13</div>
+        <div class="block_14">14</div>
+        <div class="block_15">15</div>
+        <div class="block_16">16</div>
+      </div>
+    </div>
+  </body>
+  <script>
+    (function () {
+      // 获取对象
+      let module = document.getElementById('numHuarongRoad')
+      let gameCon = module.getElementsByClassName('game')[0]
+      let block1 = gameCon.getElementsByClassName('block_1')[0]
+      let block2 = gameCon.getElementsByClassName('block_2')[0]
+      let block3 = gameCon.getElementsByClassName('block_3')[0]
+      let block4 = gameCon.getElementsByClassName('block_4')[0]
+      let block5 = gameCon.getElementsByClassName('block_5')[0]
+      let block6 = gameCon.getElementsByClassName('block_6')[0]
+      let block7 = gameCon.getElementsByClassName('block_7')[0]
+      let block8 = gameCon.getElementsByClassName('block_8')[0]
+      let block9 = gameCon.getElementsByClassName('block_9')[0]
+      let block10 = gameCon.getElementsByClassName('block_10')[0]
+      let block11 = gameCon.getElementsByClassName('block_11')[0]
+      let block12 = gameCon.getElementsByClassName('block_12')[0]
+      let block13 = gameCon.getElementsByClassName('block_13')[0]
+      let block14 = gameCon.getElementsByClassName('block_14')[0]
+      let block15 = gameCon.getElementsByClassName('block_15')[0]
+      let block16 = gameCon.getElementsByClassName('block_16')[0]
+      // 对象数组
+      let aBlocks = [
+        block1, block2, block3, block4,
+        block5, block6, block7, block8,
+        block9, block10, block11, block12,
+        block13, block14, block15, block16
+      ]
+      // 位置信息
+      let aPos = []
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          aPos.push({
+            x: j*100,
+            y: i*100,
+            movable: false
+          })
+        }
+      }
+      // aPos.pop()
+      // 获胜验证字段
+      let aNum = []
+      for (let k = 0; k < 16; k++) {
+        aNum.push(k)
+      }
+      let sResult = aNum.join('丨')
+      // 打乱数据
+      let aRandom = [].concat(aNum)
+      for (let l = 0; l < 15; l++) {
+        let nRandom = Math.floor(Math.random() * aRandom.length)
+        let aCache = aRandom.splice(nRandom, 1)
+        aRandom = aRandom.concat(aCache)
+      }
+      // 初始化位置
+      for (let i in aRandom) {
+        setPos(aRandom[i], Number(i))
+      }
+      function setPos (i, j) {
+        aBlocks[i].pos = Number(j)
+        aBlocks[i].style.top = aPos[j].y + 'px'
+        aBlocks[i].style.left = aPos[j].x + 'px'
+      }
+      // 可移动位置
+      let bMovable = true
+      let nMovalbeIndex = aBlocks[15].pos
+      let oMovablePos = aPos[nMovalbeIndex]
+      setMovale(nMovalbeIndex)
+      function setMovale (index) {
+        for (let i in aPos) {
+          aPos[i].movable = false
+        }
+        let arr = [
+          index - 4,
+          index + 4
+        ]
+        if ((index - 1) % 4 !== 3) {
+          arr.push(index - 1)
+        }
+        if ((index + 1) % 4 !== 0) {
+          arr.push(index + 1)
+        }
+        for (let i in arr) {
+          if (arr[i] < 16 && arr[i] >= 0) {
+            aPos[arr[i]].movable = true
+          }
+        }
+      }
+      // 绑定点击事件
+      for(let i = 0; i < 15; i++) {
+        let ele = aBlocks[i]
+        ele.onclick = function () {
+          if (aPos[ele.pos].movable) {
+            setMovale(ele.pos)
+            setPosSingle(ele)
+            setARandom(ele, i)
+            checkSucc()
+          } else {
+            // 不可移动
+          }
+        }
+      }
+      function setPosSingle (ele) {
+        ele.style.top = oMovablePos.y + 'px'
+        ele.style.left = oMovablePos.x + 'px'
+        oMovablePos = aPos[ele.pos]
+      }
+      function setARandom (ele, i) {
+        let n = ele.pos
+        ele.pos = nMovalbeIndex
+        aRandom[nMovalbeIndex] = i
+        nMovalbeIndex = n
+        aRandom[nMovalbeIndex] = 15
+      }
+      // 判断胜利
+      function checkSucc () {
+        let nowResult = aRandom.join('丨')
+        if (nowResult === sResult) {
+          alert('你赢了！')
+        }
+      }
+    })()
+  </script>
+  <style>
+    html,
+    body,
+    div {
+      margin: 0;
+      padding: 0;
+      height: 2000px;
+    }
+    #numHuarongRoad .game {
+      position: relative;
+      margin: 40px auto;
+      width: 400px;
+      height: 400px;
+      background: #ccc;
+    }
+    #numHuarongRoad .game div {
+      user-select: none;
+      cursor: pointer;
+      box-sizing: border-box;
+      position: absolute;
+      border: 1px #000 solid;
+      width: 25%;
+      height: 25%;
+      background: #ff0;
+      line-height: 100px;
+      text-align: center;
+      font-size: 24px;
+      color: #000;
+      text-shadow: 0 0 3px rgba(104, 55, 55, 0.5);
+    }
+    #numHuarongRoad .game div.block_16 {
+      display: none;
+    }
+  </style>
+  <!-- <script>
+    if (Math.floor(Math.random()*4)===1) {
+      document.documentElement.style.overflowY = "hidden"
+      document.write("<h1 style=\"position:fixed;z-index:999999999;top:0;right:0;bottom:0;left:0;background:#ffffff;color:#000000;margin:0;padding:20px;font-size:1em;\"><span style=\"font-size:2em;\">404 </span><span style=\"font-size:1.5em;\"> not found</span></h1>")
+    }
+  </script> -->
+</html>

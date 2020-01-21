@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>用:before伪类挡住a标签，使得其无法被点击到</title>
+    <style>
+      p {
+        position: relative;
+        padding: 20px;
+        background: #f00;
+      }
+      p:before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(0, 0, 255, .5);
+      }
+    </style>
+  </head>
+  <body>
+    <p id="p1">
+      <a href="www.baidu.com">www.baidu.com</a>
+    </p>
+    用 :before挡住了a标签，点击不到a标签。
+    <script>
+      // 19.10.14
+      document.getElementById('p1').onclick = function () {
+        alert('点击到了p标签，若是点击的是a标签，则会跳转页面。')
+      }
+    </script>
+  </body>
+</html>
