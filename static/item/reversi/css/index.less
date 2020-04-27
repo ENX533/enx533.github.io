@@ -1,0 +1,359 @@
+// @show-tips-num-display: block;
+@show-tips-num-display: none;
+
+@chessboard-bg-color: #f6ce57;
+@chessboard-w: 320px;
+@chessboard-line-color: #333;
+@tm-theme-color: #fe484c;
+@black-piece-color: #000;
+@white-piece-color: #fff;
+@default-bg-color: #f7f7f7;
+@text-color: fade(#fff, 75%);
+
+html,
+body,
+div {
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: @default-bg-color;
+}
+.chess-piece {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -webkit-transition: -webkit-transform .3s linear;
+  transition: transform .3s linear;
+  .black,
+  .white {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    // -webkit-transform: translate(-50%, -50%);
+    // transform: translate(-50%, -50%);
+    border-radius: 50%;
+    padding-top: 32px;
+    width: 32px;
+  }
+  .black {
+    background: @black-piece-color;
+    box-shadow: 1px 1px 1px 1px fade(@white-piece-color, 30%), 1px 1px 1px 1px fade(@white-piece-color, 10%) inset;
+    
+    -webkit-transform: translateZ(1px);
+    transform: translateZ(1px);
+  }
+  .white {
+    background: @white-piece-color;
+    box-shadow: 1px 1px 1px 1px fade(@black-piece-color, 30%), 1px 1px 1px 1px fade(@black-piece-color, 10%) inset;
+    
+    -webkit-transform: translateZ(-1px);
+    transform: translateZ(-1px);
+  }
+}
+.r-stage {
+  -webkit-transform-origin: top left;
+  transform-origin: top left;
+  width: 375px;
+  box-sizing: border-box;
+  padding: 40px 15px;
+  max-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  background: url(../img/page_bg.png) no-repeat;
+  background-size: cover;
+  .tips {
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: @text-color;
+    .ellipsis {
+      small,
+      b,
+      i {
+        position: relative;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: normal;
+      }
+      small {
+        -webkit-animation: dot 0.9s 0s linear infinite both;
+        animation: dot 0.9s 0s linear infinite both;
+      }
+      b {
+        -webkit-animation: dot 0.9s 0.3s linear infinite both;
+        animation: dot 0.9s 0.3s linear infinite both;
+      }
+      i {
+        -webkit-animation: dot 0.9s 0.6s linear infinite both;
+        animation: dot 0.9s 0.6s linear infinite both;
+      }
+      @keyframes dot {
+        0%,
+        100% {
+          top: 0;
+        }
+        50% {
+          top: -2px;
+        }
+      }
+    }
+  }
+  .r-board {
+    position: relative;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border: 1px @chessboard-line-color solid;
+    // padding: 10px;
+    width: @chessboard-w;
+    height: @chessboard-w;
+    // background: @chessboard-bg-color;
+    &:before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      box-sizing: border-box;
+      border: 2px @chessboard-line-color solid;
+      width: @chessboard-w + 20px;
+      height: @chessboard-w + 20px;
+      // background: inherit;
+      background: url(../img/board_bg.jpg) no-repeat;
+      background-size: 100% 100%;
+    }
+    .r-row {
+      display: flex;
+      flex: 1;
+      .chess-item {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+        border: 1px @chessboard-line-color solid;
+        .black,
+        .white {
+          padding-top: 80%;
+          width: 80%;
+        }
+        .num {
+          display: @show-tips-num-display;
+          position: absolute;
+          padding: 2px;
+          line-height: 1;
+          font-size: 10px;
+          color: #999;
+          // opacity: .5;
+        }
+        .n {
+          top: 0;
+          left: 50%;
+          -webkit-transform: translate(-50%, 0);
+          transform: translate(-50%, 0);
+        }
+        .e {
+          top: 50%;
+          -webkit-transform: translate(0, -50%);
+          transform: translate(0, -50%);
+          right: 0;
+        }
+        .s {
+          bottom: 0;
+          left: 50%;
+          -webkit-transform: translate(-50%, 0);
+          transform: translate(-50%, 0);
+        }
+        .w {
+          top: 50%;
+          -webkit-transform: translate(0, -50%);
+          transform: translate(0, -50%);
+          left: 0;
+        }
+        .nw {
+          top: 0;
+          left: 0;
+        }
+        .ne {
+          top: 0;
+          right: 0;
+        }
+        .se {
+          bottom: 0;
+          right: 0;
+        }
+        .sw {
+          bottom: 0;
+          left: 0;
+        }
+        .canPaly {
+          &::before {
+            content: '×';
+            -webkit-animation: twinkle 0.6s linear infinite;
+            animation: twinkle 1s linear infinite;
+            font-weight: bolder;
+            font-size: 20px;
+            color: @tm-theme-color;
+          }
+          &.canPalyB {
+            &::before {
+              color: @black-piece-color;
+            }
+          }
+          &.canPalyW {
+            &::before {
+              color: @white-piece-color;
+            }
+          }
+        }
+        @keyframes twinkle {
+          0% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.3;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+      }
+    }
+  }
+  .msg {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    font-size: 0;
+    color: @text-color;
+    .left,
+    .right {
+      display: flex;
+      align-items: center;
+      .chess-piece {
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+      }
+      .icon_computer,
+      .icon_user {
+        font-size: 24px;
+      }
+      .icon_computer {
+        color: #4c90fd;
+      }
+      .icon_user {
+        color: #f35d83;
+      }
+      span {
+        padding: 0 3px;
+        font-size: 16px;
+      }
+    }
+    .center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+    }
+    .right {
+      flex-direction: row-reverse;
+    }
+  }
+}
+.btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background: #00a0e9;
+    margin-top: 20px;
+    width: 60%;
+    height: 40px;
+    color: @text-color;
+    cursor: pointer;
+  }
+}
+.r-select-color {
+  -webkit-transform-origin: top left;
+  transform-origin: top left;
+  width: 375px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: fade(#000, 80%);
+  .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+    padding-bottom: 20px;
+    border-radius: 5px;
+    width: 60%;
+    height: 50px;
+    background: fade(#fff, 50%);
+    .hei {
+      position: relative;
+      top: -5px;
+      -webkit-transform: rotateZ(-5deg);
+      transform: rotateZ(-5deg);
+      margin: 5px;
+      font-size: 40px;
+      color: @black-piece-color;
+      text-shadow: 0 0 2px @white-piece-color;
+    }
+    .bai {
+      position: relative;
+      top: 5px;
+      -webkit-transform: rotateZ(5deg);
+      transform: rotateZ(5deg);
+      margin: 5px;
+      font-size: 40px;
+      color: @white-piece-color;
+      text-shadow: 0 0 2px @black-piece-color;
+    }
+    .cpb,
+    .cpw {
+      flex: 0 0 32px;
+    }
+    .cpb {
+      transform: translate(0, 0);
+    }
+    .cpw {
+      transform: translate(-50%, 50%);
+    }
+    .qi {
+      font-size: 32px;
+      color: @text-color;
+      text-shadow: 0 0 2px @default-bg-color;
+    }
+  }
+}
