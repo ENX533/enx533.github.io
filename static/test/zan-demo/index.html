@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>点赞效果</title>
+    <style>
+      .imgCon {
+        position: relative;
+        margin: 100px 200px;
+        width: 22px;
+        height: 20px;
+      }
+      .img {
+        position: relative;
+        cursor: pointer;
+        z-index: 1;
+        width: 22px;
+        height: 20px;
+      }
+      .imgCopyCon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 22px;
+        height: 20px;
+        overflow: hidden;
+        animation: fly 1s linear both;
+        pointer-events: none;
+      }
+      .imgCopy {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 22px;
+        height: 20px;
+      }
+      @keyframes fly {
+        0% {
+          top: 0;
+          left: 0;
+          opacity: 1;
+          transform: scale(.75);
+        }
+        50% {
+          top: -40px;
+          left: 5px;
+          transform: scale(1);
+          opacity: 0.5;
+        }
+        100% {
+          top: -80px;
+          left: -17px;
+          opacity: 0;
+          transform: scale(.8);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="imgCon">
+        <img @click="zan" class="img" :src="zanImg">
+        <div
+        class="imgCopyCon"
+        v-for="(item, key) in zanFlyList"
+        :key="key">
+          <span
+          class="imgCopy"
+          :style="{
+            background: `url(${item.zanImg})`,
+            backgroundSize: '100% 100%'
+          }"></span>
+        </div>
+      </div>
+      <div>{{msg}}</div>
+    </div>
+    <script src="./vue.min.js"></script>
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: () => {
+          return {
+            zanImg: './icon_dianzan_sel@3x.png',
+            zanFlyList: [],
+            timerClear: null,
+            // colors: [
+            //   '#005344', // 铁色
+            //   '#007947', // 常盘色
+            //   '#009ad6', // 青
+            //   '#102b6a', // 青蓝
+            //   '#11264f', // 浓蓝
+            //   '#121a2a', // 青褐
+            //   '#130c0e', // 黒
+            //   '#1d1626', // 紫黒
+            //   '#2a5caa', // 瑠璃色
+            //   '#53261f', // 赤褐色
+            //   '#7a1723', // 绯
+            //   '#7bbfea', // 勿忘草色
+            //   '#7f7522', // 伽罗色
+            //   '#8552a1', // 紫
+            //   '#decb00', // 緑黄色
+            //   '#f05b72', // 蔷薇色
+            //   '#f47920', // 橙色
+            //   '#ffc20e', // 向日葵色
+            //   '#ffd400', // 蒲公英色
+            //   '#ffe600' // 中黄
+            // ],
+            zanImgList: [
+              './icon_dianzan_sel_lan@3x.png', // 蓝
+              './icon_dianzan_sel_hei@3x.png', // 黑
+              './icon_dianzan_sel@3x.png', // 红
+              './icon_dianzan_sel_huang@3x.png', // 黄
+              './icon_dianzan_sel_lv@3x.png' // 绿
+            ],
+            msg: ''
+          }
+        },
+        methods: {
+          zan () {
+            this.msg += '1'
+            this.zanFlyList.push({
+              // bgColor: this.colors[Math.floor(Math.random() * this.colors.length)]
+              zanImg: this.zanImgList[Math.floor(Math.random() * this.zanImgList.length)]
+            })
+            clearTimeout(this.timerClear)
+            this.timerClear = setTimeout(() => {
+              this.zanFlyList = []
+            }, 1000)
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
