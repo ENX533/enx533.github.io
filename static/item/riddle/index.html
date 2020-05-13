@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>简单解谜</title>
+    <style>
+      html,
+      body,
+      div {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: url(./img/paper.jpg);
+      }
+      .tit {
+        padding: 20px 0 15px;
+        text-align: center;
+        font-size: 24px;
+        color: #333;
+      }
+      .des {
+        padding: 0 15px;
+        text-align: center;
+        color: #333;
+      }
+      .stage {
+        position: relative;
+        padding-top: 100%;
+      }
+      .stage .list {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        bottom: 15px;
+        left: 15px;
+        display: flex;
+        flex-direction: column;
+      }
+      .stage .list .row {
+        display: flex;
+      }
+      .stage .list .row .col {
+        position: relative;
+        flex: 1;
+        box-sizing: border-box;
+      }
+      .stage .list .row .col .border {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border: 2px solid #333;
+        border-right: none;
+        border-bottom: none;
+        cursor: pointer;
+      }
+      .stage .list .row .col .borderBottom {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border-bottom: 2px solid #333;
+      }
+      .stage .list .row .col .borderRight {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border-right: 2px solid #333;
+      }
+      .stage .list .row .col .checked {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 2px solid #fe484c;
+        width: 50%;
+        height: 50%;
+      }
+      .stage .list .row .col .tips {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+      }
+      .btns {
+        position: relative;
+        padding: 0 15px;
+      }
+      .btns .btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+        border-radius: 6px;
+        height: 44px;
+        font-size: 16px;
+        color: #fff;
+        background: #00a0e9;
+        cursor: pointer;
+      }
+      .btns .btn.empty {
+        border: 1px solid #00a0e9;
+        background: #fff;
+        color: #00a0e9;
+      }
+      .select-diff {
+        position: fixed;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: rgba(0, 0, 0, .7);
+      }
+      .select-diff .s-tit {
+        padding: 20px 0 15px;
+        text-align: center;
+        font-size: 24px;
+        color: #fff;
+      }
+      .select-diff .s-subtit {
+        text-align: center;
+        font-size: 20px;
+        color: #fff;
+      }
+      .select-diff .s-list {
+        display: flex;
+        flex-direction: column;
+        padding: 0 15px;
+      }
+      .select-diff .s-list .s-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 15px;
+        border-radius: 6px;
+        height: 40px;
+        background: #fff;
+        font-size: 16px;
+        color: #000;
+        opacity: .75;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="tit">简单解谜</div>
+      <div class="des">找出规律，选中网格，提交答案</div>
+      <div class="stage">
+        <div class="list" v-if="aNow && aNow[0]">
+          <div class="row" v-for="i in (nDifficult + 2)" :key="i">
+            <div class="col" v-for="j in (nDifficult + 2)" :key="j" :style="{
+              'padding-top': 1 / (nDifficult + 2) * 100 + '%'
+            }" @click="checkItem(i, j)">
+              <!-- nDifficult: 4 -->
+              <!-- i: 1 2 3 4 5 -->
+              <div class="border" v-if="i - 2 >= 0 && i - 2 < nDifficult && j - 2 >= 0 && j - 2 < nDifficult"></div>
+              <div class="borderBottom" v-if="i === nDifficult + 1 && j !== 1 && j !== nDifficult + 2"></div>
+              <div class="borderRight" v-if="j === nDifficult + 1 && i !== 1 && i !== nDifficult + 2"></div>
+              <div class="checked" v-if="i - 2 >= 0 && i - 2 < nDifficult && j - 2 >= 0 && j - 2 < nDifficult && aNow[i - 2][j - 2]"></div>
+              <div class="tips" v-if="(i === 1 || j === 1) && i !== j && i !== nDifficult + 2 && j !== nDifficult + 2">
+                <div v-if="(j - 2 >= 0 && j - 2 <= nDifficult) || (i - 2 >= 0 && i - 2 <= nDifficult)" v-text="i === 1 ? aTipsRow[j - 2] : aTipsCol[i - 2]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="btns" :style="{
+        marginTop: `-${(winW - 30) / (nDifficult + 2) / 2}px`
+      }">
+        <div class="btn" @click="onSubmit">提交答案</div>
+        <div class="btn empty" @click="onRestart">重新开始</div>
+      </div>
+      <div class="select-diff" v-show="bShowSelectDiff">
+        <div class="s-tit">简单解谜</div>
+        <div class="s-subtit">选择难度</div>
+        <div class="s-list">
+          <div class="s-item" v-for="i in 7" @click="onInit(i + 3)">{{i + 3}} * {{i + 3}}</div>
+          <div class="s-item" @click="bShowSelectDiff = false">返回游戏</div>
+        </div>
+      </div>
+    </div>
+    <script src="./js/vue.min.js"></script>
+    <script>
+      new Vue({
+        el: '#app',
+        data: function () {
+          return {
+            nDifficult: 4, // 二维数组大小 4 5 6 7
+            aResult: [], // 最终结果二维数组
+            aNow: [], // 当前操作二维数组
+            aTipsRow: [], // 横向提示
+            aTipsCol: [], // 纵向提示
+            sResult: '', // 最终结果字符串
+            sNow: '', // 当前操作得到的答案
+            aTipsRowNow: [], // 当前操作得到的数组算出的横向提示
+            aTipsColNow: [], // 当前操作得到的数组算出的纵向提示
+            winW: 375,
+            bShowSelectDiff: true
+          }
+        },
+        methods: {
+          // 初始化
+          onInit: function (diff) {
+            // 重置
+            if (!diff) diff = 4;
+            this.nDifficult = diff;
+            this.aResult = [];
+            this.aNow = [];
+            this.aTipsRow = [];
+            this.aTipsCol = [];
+            this.sResult = '';
+            this.sNow = '';
+            this.aTipsRowNow = [];
+            this.aTipsColNow = [];
+            // 初始化结果二维数组以及操作二维数组
+            var nSize = this.nDifficult;
+            var aResult = [];
+            var aNow = [];
+            for (var i = 0; i < nSize; i++) {
+              aResult[i] = [];
+              aNow[i] = []
+              for (var j = 0; j < nSize; j++) {
+                aResult[i][j] = Math.floor(Math.random() * 2);
+                aNow[i][j] = 0
+              }
+            }
+            this.aResult = aResult;
+            this.aNow = aNow;
+            // 判断结果二维数组可用性……
+            // 全是0就重来……
+            if (!this.fnIsAResultEnable()) {
+              this.onInit();
+              return;
+            }
+            // 根据结果算出提示值
+            this.onComputeTips();
+            // 隐藏难度选择
+            this.bShowSelectDiff = false;
+            // // 得到最终结果字符串
+            // this.getResult();
+          },
+          // 得到最终结果字符串
+          getResult: function () {
+            var str = this.aResult.reduce(function (res, item) {
+              return res + item.join(' ') + '\n';
+            }, '');
+            console.log('目标答案：');
+            console.log(str);
+            this.sResult = str;
+          },
+          // 判断结果二维数组可用性……
+          fnIsAResultEnable: function () {
+            var aResult = this.deepClone(this.aResult);
+            var nSum = aResult.reduce(function (sum, arr) {
+              return sum + arr.reduce(function (sum, item) {
+                return sum + item;
+              }, 0);
+            }, 0);
+            // console.log(nSum);
+            return !!nSum;
+          },
+          // 标记
+          checkItem: function (i, j) {
+            i = i - 2;
+            j = j - 2;
+            if (i < 0 || j < 0 || i >= this.nDifficult || j >= this.nDifficult) return;
+            var aNow = this.deepClone(this.aNow);
+            aNow[i][j] = aNow[i][j] === 0 ? 1 : 0;
+            this.aNow = aNow;
+          },
+          // 深度克隆
+          deepClone: function (target) {
+            // 定义一个变量
+            let result;
+            // 如果当前需要深拷贝的是一个对象的话
+            if (typeof target === 'object') {
+              // 如果是一个数组的话
+              if (Array.isArray(target)) {
+                result = []; // 将result赋值为一个数组，并且执行遍历
+                for (let i in target) {
+                  // 递归克隆数组中的每一项
+                  result.push(this.deepClone(target[i]))
+                }
+                // 判断如果当前的值是null的话；直接赋值为null
+              } else if(target === null) {
+                result = null;
+                // 判断如果当前的值是一个RegExp对象的话，直接赋值
+              } else if(target.constructor === RegExp){
+                result = target;
+              } else {
+                // 否则是普通对象，直接for in循环，递归赋值对象的所有值
+                result = {};
+                for (let i in target) {
+                  result[i] = this.deepClone(target[i]);
+                }
+              }
+            // 如果不是对象的话，就是基本数据类型，那么直接赋值
+            } else {
+              result = target;
+            }
+            // 返回最终结果
+            return result;
+          },
+          // 根据结果算出提示值
+          onComputeTips: function () {
+            var aTipsRow = [];
+            var aTipsCol = [];
+            for (var i = 0; i < this.nDifficult; i++) {
+              aTipsRow.push(0);
+              aTipsCol.push(0);
+            }
+            this.aResult.forEach(function (arr, index) {
+              arr.forEach(function (item, index) {
+                aTipsRow[index] += item;
+              });
+            });
+            this.aTipsRow = aTipsRow;
+
+            this.aResult.forEach(function (arr, index) {
+              var sum = 0;
+              arr.forEach(function (item) {
+                sum += item;
+              });
+              aTipsCol[index] = sum;
+            });
+            this.aTipsCol = aTipsCol;
+          },
+          // 提交答案
+          onSubmit: function () {
+            // // 打印出来看看
+            // this.getResult();
+            // this.getNow();
+            // 计算出当前的横向和纵向个数 用于最终结果对比
+            this.onComputeNowToCompareTips();
+            // console.log('一致？');
+            if (
+              this.aTipsRow.join(' ') === this.aTipsRowNow.join(' ') &&
+              this.aTipsCol.join(' ') === this.aTipsColNow.join(' ')
+            ) {
+              alert('你赢了！');
+            } else {
+              alert('不对');
+            }
+          },
+          // 得到当前操作得到的答案
+          getNow: function () {
+            var str = this.aNow.reduce(function (res, item) {
+              return res + item.join(' ') + '\n';
+            }, '');
+            console.log('当前答案：');
+            console.log(str);
+            this.sNow = str;
+          },
+          // 根据结果算出提示值
+          onComputeNowToCompareTips: function () {
+            var aTipsRowNow = [];
+            var aTipsColNow = [];
+            for (var i = 0; i < this.nDifficult; i++) {
+              aTipsRowNow.push(0);
+              aTipsColNow.push(0);
+            }
+            this.aNow.forEach(function (arr, index) {
+              arr.forEach(function (item, index) {
+                aTipsRowNow[index] += item;
+              });
+            });
+            this.aTipsRowNow = aTipsRowNow;
+
+            this.aNow.forEach(function (arr, index) {
+              var sum = 0;
+              arr.forEach(function (item) {
+                sum += item;
+              });
+              aTipsColNow[index] = sum;
+            });
+            this.aTipsColNow = aTipsColNow;
+          },
+          // 重新开始
+          onRestart: function () {
+            // this.onInit();
+            this.bShowSelectDiff = true
+          }
+        },
+        mounted: function () {
+          this.winW = window.innerWidth;
+          this.onInit();
+          this.bShowSelectDiff = true
+        }
+      });
+    </script>
+  </body>
+</html>
