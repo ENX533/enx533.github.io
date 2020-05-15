@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
     <!-- 删除ios的工具栏和菜单栏 Yes 不知道有什么具体作用 -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>黑白棋</title>
     <link rel="stylesheet" href="./css/index.css">
   </head>
@@ -66,27 +69,31 @@
           <div class="btn" @click="restart">重新开始</div>
         </div>
       </div>
-      <div class="r-select-color" v-if="bSelectColor" :style="{transform: 'scale(' + screenScale + ')'}">
-        <div class="title">
-          <span class="hei">黑</span>
-          <span class="bai">白</span>
-          <div class="chess-piece cpb">
-            <div class="black"></div>
+      <div class="r-select-color" v-if="bSelectColor">
+        <div class="r-con" :style="{transform: 'scale(' + screenScale + ')'}">
+          <div class="title">
+            <span class="hei">黑</span>
+            <span class="bai">白</span>
+            <div class="chess-piece cpb">
+              <div class="black"></div>
+            </div>
+            <div class="chess-piece cpw">
+              <div class="white"></div>
+            </div>
+            <div class="qi">棋</div>
           </div>
-          <div class="chess-piece cpw">
-            <div class="white"></div>
+          <div class="btns">
+            <div class="btn" @click="start('black')">执黑先走</div>
+            <div class="btn" @click="start('white')">执白后手</div>
           </div>
-          <div class="qi">棋</div>
         </div>
-        <div class="btns">
-          <div class="btn" @click="start('black')">执黑先走</div>
-          <div class="btn" @click="start('white')">执白后手</div>
-        </div>
+      </div>
+      <div class="m-tips-msg" v-show="mTipsMsg">
+        {{mTipsMsg}}
       </div>
     </div>
     <script src="./js/vue.min.js"></script>
     <script>
-    // 原生js小游戏，code by 429457385@qq.com 2020.4.27
       new Vue({
         el: '#app',
         data () {
@@ -95,23 +102,28 @@
             chess: {}, // 模拟棋盘的二维数组 先行后列
             whoseTurn: 'black', // 当前是谁的回合
             whoIsComputer: 'white', // 谁是ai
-            bLastOneCannotPlay: false, // 上个棋手无子可落
-            blackCount: 0,
-            whiteCount: 0,
-            nowMaxScore: 0,
-            nowMaxScorePos: {y: 0, x: 0},
+            bLastOneCannotPlay: false, // 上个棋手无子可落Boolean
+            blackCount: 0, // 当前黑子数
+            whiteCount: 0, // 当前白子数
+            nowMaxScore: 0, // 最大得分值 落子后可吃的子数
+            nowMaxScorePos: {y: 0, x: 0}, // 最大得分落子位置
             bShowCanPlay: true, // 可落子位置提示的显示开关
-            tips: '',
+            tips: '', // 页面顶部提示文字
             bShowEllipsis: false, // 会动的省略号
-            bSelectColor: true,
-            timer: null,
-            screenScale: 1
+            bSelectColor: true, // 选择持子颜色 重新开始
+            timer: null, // 定时器 伪装电脑思考中 使得xx的闪烁动画步调一致
+            screenScale: 1, // 界面根据屏幕大小缩放比例
+            mTipsMsg: '', // 会消失的屏幕中间提示文字 无子可落2s以及结束5s
+            timer1: null // 屏幕中间提示文字的定时器
           }
         },
         mounted () {
           // 棋盘界面由css布局，无需写方法
           // 初始化
           this.init();
+          this.getScreenScale();
+          window.removeEventListener('resize', this.getScreenScale);
+          window.addEventListener('resize', this.getScreenScale);
           // this.screenScale = window.innerWidth / 375;
         },
         methods: {
@@ -353,10 +365,12 @@
               if (!this.bLastOneCannotPlay) {
                 // 上个棋手可落子，当前棋手无法落子，标识
                 this.bLastOneCannotPlay = true
+                if (this.whiteCount + this.blackCount !== 64) this.mTipsMsgSet('无子可落，交换对手', 2000);
                 // 交换棋手
                 this.changeTurn();
               } else {
-                // 上个棋手不可落子，当前棋手也不可落子，结束
+                // 上个棋手不可落子，当前棋手也不可落子
+                // 结束
                 this.showTips(true);
                 // alert('都没得玩啦，结束吧')
               }
@@ -372,7 +386,7 @@
             // this.logChessStatus()
           },
           // 吃子
-          captureChessPieces (rowIndex, colIndex) {
+          captureChessPieces: function (rowIndex, colIndex) {
             this.bShowCanPlay = false;
             var playerChessPiece = this.whoseTurn === 'black' ? 1 : 2;
             var rowCount = this.rowCount;
@@ -512,8 +526,13 @@
           },
           // 重新开始，出现选择先后手的界面
           restart: function () {
-            // 装哔
+            // 清除定时器
             clearTimeout(this.timer);
+            this.timer = null;
+            clearTimeout(this.timer1);
+            this.timer1 = null;
+            this.mTipsMsg = '';
+            // 装哔动画 翻黑
             var rowCount = this.rowCount;
             var chess = this.deepClone(this.chess);
             chess.forEach(function (row) {
@@ -561,9 +580,7 @@
               }
               this.tips = str;
               this.bShowEllipsis = false;
-              this.timer = setTimeout(function () {
-                alert(str);
-              }, 300);
+              this.mTipsMsgSet(str, 5000);
               return;
             }
             if (this.whoseTurn === this.whoIsComputer) {
@@ -575,6 +592,26 @@
               this.tips = '该你了';
               this.bShowEllipsis = false;
             }
+          },
+          // 提示层
+          mTipsMsgSet: function (str, time) {
+            if (!time) time = 300;
+            if (!str) return;
+            this.mTipsMsg = str;
+            // console.time(str)
+            clearTimeout(this.timer1);
+            this.timer1 = null;
+            this.timer1 = setTimeout(function () {
+              // console.timeEnd(str)
+              this.mTipsMsg = '';
+            }.bind(this), time);
+          },
+          // 缩放整个棋盘
+          getScreenScale: function () {
+            var scaleX = window.innerWidth / 375
+            var scaleY = window.innerHeight / 667
+            var scaleSmaller = scaleX > scaleY ? scaleY : scaleX;
+            this.screenScale = scaleSmaller
           }
         }
       });

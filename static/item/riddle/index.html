@@ -1,195 +1,91 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>简单解谜</title>
-    <style>
-      html,
-      body,
-      div {
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        background: url(./img/paper.jpg);
-      }
-      .tit {
-        padding: 20px 0 15px;
-        text-align: center;
-        font-size: 24px;
-        color: #333;
-      }
-      .des {
-        padding: 0 15px;
-        text-align: center;
-        color: #333;
-      }
-      .stage {
-        position: relative;
-        padding-top: 100%;
-      }
-      .stage .list {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        bottom: 15px;
-        left: 15px;
-        display: flex;
-        flex-direction: column;
-      }
-      .stage .list .row {
-        display: flex;
-      }
-      .stage .list .row .col {
-        position: relative;
-        flex: 1;
-        box-sizing: border-box;
-      }
-      .stage .list .row .col .border {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        border: 2px solid #333;
-        border-right: none;
-        border-bottom: none;
-        cursor: pointer;
-      }
-      .stage .list .row .col .borderBottom {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        border-bottom: 2px solid #333;
-      }
-      .stage .list .row .col .borderRight {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        border-right: 2px solid #333;
-      }
-      .stage .list .row .col .checked {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        -webkit-transform: translate(-50%, -50%);
-        transform: translate(-50%, -50%);
-        border-radius: 50%;
-        border: 2px solid #fe484c;
-        width: 50%;
-        height: 50%;
-      }
-      .stage .list .row .col .tips {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        -webkit-transform: translate(-50%, -50%);
-        transform: translate(-50%, -50%);
-      }
-      .btns {
-        position: relative;
-        padding: 0 15px;
-      }
-      .btns .btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 15px;
-        box-sizing: border-box;
-        border-radius: 6px;
-        height: 44px;
-        font-size: 16px;
-        color: #fff;
-        background: #00a0e9;
-        cursor: pointer;
-      }
-      .btns .btn.empty {
-        border: 1px solid #00a0e9;
-        background: #fff;
-        color: #00a0e9;
-      }
-      .select-diff {
-        position: fixed;
-        z-index: 10;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background: rgba(0, 0, 0, .7);
-      }
-      .select-diff .s-tit {
-        padding: 20px 0 15px;
-        text-align: center;
-        font-size: 24px;
-        color: #fff;
-      }
-      .select-diff .s-subtit {
-        text-align: center;
-        font-size: 20px;
-        color: #fff;
-      }
-      .select-diff .s-list {
-        display: flex;
-        flex-direction: column;
-        padding: 0 15px;
-      }
-      .select-diff .s-list .s-item {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 15px;
-        border-radius: 6px;
-        height: 40px;
-        background: #fff;
-        font-size: 16px;
-        color: #000;
-        opacity: .75;
-        cursor: pointer;
-      }
-    </style>
+    <link rel="stylesheet" href="./css/index.css">
   </head>
   <body>
     <div id="app">
-      <div class="tit">简单解谜</div>
-      <div class="des">找出规律，选中网格，提交答案</div>
-      <div class="stage">
-        <div class="list" v-if="aNow && aNow[0]">
-          <div class="row" v-for="i in (nDifficult + 2)" :key="i">
-            <div class="col" v-for="j in (nDifficult + 2)" :key="j" :style="{
-              'padding-top': 1 / (nDifficult + 2) * 100 + '%'
-            }" @click="checkItem(i, j)">
-              <!-- nDifficult: 4 -->
-              <!-- i: 1 2 3 4 5 -->
-              <div class="border" v-if="i - 2 >= 0 && i - 2 < nDifficult && j - 2 >= 0 && j - 2 < nDifficult"></div>
-              <div class="borderBottom" v-if="i === nDifficult + 1 && j !== 1 && j !== nDifficult + 2"></div>
-              <div class="borderRight" v-if="j === nDifficult + 1 && i !== 1 && i !== nDifficult + 2"></div>
-              <div class="checked" v-if="i - 2 >= 0 && i - 2 < nDifficult && j - 2 >= 0 && j - 2 < nDifficult && aNow[i - 2][j - 2]"></div>
-              <div class="tips" v-if="(i === 1 || j === 1) && i !== j && i !== nDifficult + 2 && j !== nDifficult + 2">
-                <div v-if="(j - 2 >= 0 && j - 2 <= nDifficult) || (i - 2 >= 0 && i - 2 <= nDifficult)" v-text="i === 1 ? aTipsRow[j - 2] : aTipsCol[i - 2]"></div>
+      <!-- 网格游戏 -->
+      <div class="g-grid" :style="{transform: 'scale(' + screenScale + ')'}" v-show="bShowGameGrid">
+        <div class="tit">简单解谜</div>
+        <div class="des">找出规律，选中网格，提交答案</div>
+        <div class="g-stage">
+          <div class="list" v-if="aNow && aNow[0]">
+            <div class="row" v-for="i in (nDifficult + 2)" :key="i">
+              <div class="col" v-for="j in (nDifficult + 2)" :key="j" :style="{
+                'padding-top': 1 / (nDifficult + 2) * 100 + '%'
+              }" @click="checkItem(i, j)">
+                <!-- nDifficult: 4 -->
+                <!-- i: 1 2 3 4 5 -->
+                <div class="border" v-if="i - 2 >= 0 && i - 2 < nDifficult && j - 2 >= 0 && j - 2 < nDifficult"></div>
+                <div class="borderBottom" v-if="i === nDifficult + 1 && j !== 1 && j !== nDifficult + 2"></div>
+                <div class="borderRight" v-if="j === nDifficult + 1 && i !== 1 && i !== nDifficult + 2"></div>
+                <div class="checked" v-if="i - 2 >= 0 && i - 2 < nDifficult && j - 2 >= 0 && j - 2 < nDifficult && aNow[i - 2][j - 2]"></div>
+                <div class="tips" v-if="(i === 1 || j === 1) && i !== j && i !== nDifficult + 2 && j !== nDifficult + 2">
+                  <div v-if="(j - 2 >= 0 && j - 2 <= nDifficult) || (i - 2 >= 0 && i - 2 <= nDifficult)" v-text="i === 1 ? aTipsRow[j - 2] : aTipsCol[i - 2]"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="btns" :style="{
-        marginTop: `-${(winW - 30) / (nDifficult + 2) / 2}px`
-      }">
-        <div class="btn" @click="onSubmit">提交答案</div>
-        <div class="btn empty" @click="onRestart">重新开始</div>
-      </div>
-      <div class="select-diff" v-show="bShowSelectDiff">
-        <div class="s-tit">简单解谜</div>
-        <div class="s-subtit">选择难度</div>
-        <div class="s-list">
-          <div class="s-item" v-for="i in 7" @click="onInit(i + 3)">{{i + 3}} * {{i + 3}}</div>
-          <div class="s-item" @click="bShowSelectDiff = false">返回游戏</div>
+        <div class="btns" :style="{
+          marginTop: `-${(375 - 30) / (nDifficult + 2) / 2}px`
+        }">
+          <div class="btn" @click="onSubmit">提交答案</div>
+          <div class="btn empty" @click="onRestart">重新开始</div>
         </div>
+      </div>
+      <!-- 点灯游戏 -->
+      <div class="g-light-lamps" :style="{transform: 'scale(' + screenScale + ')'}" v-show="bShowGameLightLamps">
+        <div class="tit">点灯</div>
+        <div class="des">找出规律，点亮所有的灯</div>
+        <div class="l-con">
+          <div
+          class="lamp"
+          :class="{light: item}"
+          v-for="(item, key) in aLamps"
+          :key="key"
+          :style="{
+            transform: 'translateX(-50%) translateY(-194px) scale(.75) rotateZ(-' + 51 * (key) + 'deg)'
+          }"
+          @click="onClickLamp(key)">
+            <div class="ball"></div>
+            <div class="mask"></div>
+            <div class="oval"></div>
+            <div class="fan"></div>
+            <div class="rect"></div>
+            <div class="r1"></div>
+            <div class="r2"></div>
+            <div class="r3"></div>
+            <div class="triangle"></div>
+            <div class="triangleBlack"></div>
+          </div>
+        </div>
+        <div class="btns">
+          <div class="btn empty" @click="onRestart">重新开始</div>
+        </div>
+      </div>
+      <!-- 选择难度 -->
+      <div class="select-diff" v-show="bShowSelectDiff">
+        <div class="s-con" :style="{transform: 'scale(' + screenScale + ')'}">
+          <div class="s-tit">简单解谜</div>
+          <div class="s-subtit">选择难度</div>
+          <div class="s-list">
+            <div class="s-item" v-for="i in 7" @click="onInitGrid(i + 3)">网格 {{i + 3}} * {{i + 3}}</div>
+            <div class="s-item" @click="onInitLightLamps">点灯游戏</div>
+            <div class="s-item" style="flex: 1;" @click="bShowSelectDiff = false">返回游戏</div>
+          </div>
+        </div>
+      </div>
+      <!-- 提示弹层 -->
+      <div class="m-tips-msg" v-show="mTipsMsg">
+        {{mTipsMsg}}
       </div>
     </div>
     <script src="./js/vue.min.js"></script>
@@ -198,6 +94,9 @@
         el: '#app',
         data: function () {
           return {
+            bShowGameGrid: true, // 网格游戏
+            bShowGameLightLamps: false, // 点灯游戏
+            bShowSelectDiff: true, // 选择难度界面的显示/隐藏
             nDifficult: 4, // 二维数组大小 4 5 6 7
             aResult: [], // 最终结果二维数组
             aNow: [], // 当前操作二维数组
@@ -207,13 +106,16 @@
             sNow: '', // 当前操作得到的答案
             aTipsRowNow: [], // 当前操作得到的数组算出的横向提示
             aTipsColNow: [], // 当前操作得到的数组算出的纵向提示
-            winW: 375,
-            bShowSelectDiff: true
+            winW: 375, // 屏幕宽度
+            mTipsMsg: '', // 会消失的屏幕中间提示文字 无子可落2s以及结束5s
+            timer1: null, // 屏幕中间提示文字的定时器
+            screenScale: 1, // 界面缩放比例
+            aLamps: []
           }
         },
         methods: {
-          // 初始化
-          onInit: function (diff) {
+          // 初始化网格游戏
+          onInitGrid: function (diff) {
             // 重置
             if (!diff) diff = 4;
             this.nDifficult = diff;
@@ -242,13 +144,15 @@
             // 判断结果二维数组可用性……
             // 全是0就重来……
             if (!this.fnIsAResultEnable()) {
-              this.onInit();
+              this.onInitGrid();
               return;
             }
             // 根据结果算出提示值
             this.onComputeTips();
-            // 隐藏难度选择
+            // 显示隐藏相关界面
             this.bShowSelectDiff = false;
+            this.bShowGameGrid = true;
+            this.bShowGameLightLamps = false;
             // // 得到最终结果字符串
             // this.getResult();
           },
@@ -350,9 +254,9 @@
               this.aTipsRow.join(' ') === this.aTipsRowNow.join(' ') &&
               this.aTipsCol.join(' ') === this.aTipsColNow.join(' ')
             ) {
-              alert('你赢了！');
+              this.mTipsMsgSet('恭喜！你赢了！', 3000);
             } else {
-              alert('不对');
+              this.mTipsMsgSet('不对……', 3000);
             }
           },
           // 得到当前操作得到的答案
@@ -390,14 +294,78 @@
           },
           // 重新开始
           onRestart: function () {
-            // this.onInit();
+            // this.onInitGrid();
             this.bShowSelectDiff = true
+            // 清除提示层
+            clearTimeout(this.timer1);
+            this.timer1 = null;
+            this.mTipsMsg = '';
+          },
+          // 提示层
+          mTipsMsgSet: function (str, time) {
+            if (!time) time = 300;
+            if (!str) return;
+            this.mTipsMsg = str;
+            // console.time(str)
+            clearTimeout(this.timer1);
+            this.timer1 = null;
+            this.timer1 = setTimeout(function () {
+              // console.timeEnd(str)
+              this.mTipsMsg = '';
+            }.bind(this), time);
+          },
+          // 缩放整个界面
+          getScreenScale: function () {
+            var scaleX = window.innerWidth / 375
+            var scaleY = window.innerHeight / 667
+            var scaleSmaller = scaleX > scaleY ? scaleY : scaleX;
+            this.screenScale = scaleSmaller
+          },
+          // 初始化点灯游戏
+          onInitLightLamps: function () {
+            // 初始化数据
+            this.aLamps = [false, false, false, false, false, false, false];
+            // 随机点一个
+            this.onClickLamp(Math.floor(Math.random() * 7));
+            // 显示隐藏相关界面
+            this.bShowSelectDiff = false;
+            this.bShowGameGrid = false;
+            this.bShowGameLightLamps = true;
+          },
+          // 点灯
+          onClickLamp: function (index) {
+            // 0 3 4
+            var aLamps = this.deepClone(this.aLamps);
+            aLamps[index] = !aLamps[index];
+            aLamps[(index + 3 + aLamps.length) % aLamps.length] = !aLamps[(index + 3 + aLamps.length) % aLamps.length]
+            aLamps[(index + 4 + aLamps.length) % aLamps.length] = !aLamps[(index + 4 + aLamps.length) % aLamps.length]
+            this.aLamps = aLamps;
+            // 判定胜利
+            this.judgeLightLamps();
+          },
+          // 判定胜利
+          judgeLightLamps: function () {
+            var bSucc = true;
+            for (var i = 0; i < this.aLamps.length; i++) {
+              if (!this.aLamps[i]) {
+                bSucc = false;
+                break;
+              }
+            }
+            if (bSucc) this.mTipsMsgSet('你点亮了全部的灯！', 3000);
           }
         },
         mounted: function () {
-          this.winW = window.innerWidth;
-          this.onInit();
+          // this.winW = window.innerWidth;
+          // 初始化网格游戏
+          this.onInitGrid();
           this.bShowSelectDiff = true
+          // 自适应缩放界面
+          this.getScreenScale();
+          window.removeEventListener('resize', this.getScreenScale);
+          window.addEventListener('resize', this.getScreenScale);
+          // // 调试点灯游戏
+          // this.onInitLightLamps();
         }
       });
     </script>

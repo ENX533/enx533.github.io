@@ -18,10 +18,19 @@ div {
 }
 html,
 body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   height: 100%;
   overflow: hidden;
   background: @default-bg-color;
 }
+body {
+  background: url(../img/page_bg.png) no-repeat;
+  background-size: cover;
+}
+// 棋子
 .chess-piece {
   position: relative;
   width: 100%;
@@ -58,17 +67,15 @@ body {
     transform: translateZ(-1px);
   }
 }
+// 棋盘
 .r-stage {
-  -webkit-transform-origin: top left;
-  transform-origin: top left;
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
   width: 375px;
   box-sizing: border-box;
   padding: 40px 15px;
-  max-height: 812px;
-  height: 100vh;
+  height: 667px;
   overflow: hidden;
-  background: url(../img/page_bg.png) no-repeat;
-  background-size: cover;
   .tips {
     height: 20px;
     line-height: 20px;
@@ -276,6 +283,7 @@ body {
     }
   }
 }
+// 按钮基本样式
 .btns {
   display: flex;
   justify-content: center;
@@ -289,27 +297,31 @@ body {
     border-radius: 5px;
     background: #00a0e9;
     margin-top: 20px;
-    width: 60%;
+    width: 225px;
     height: 40px;
     color: @text-color;
     cursor: pointer;
   }
 }
+// 选择先后手
 .r-select-color {
-  -webkit-transform-origin: top left;
-  transform-origin: top left;
-  width: 375px;
+  width: 100%;
   position: fixed;
   z-index: 1;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
   background: fade(#000, 80%);
+  .r-con {
+    -webkit-transform-origin: center center;
+    transform-origin: center center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+  }
   .title {
     display: flex;
     justify-content: center;
@@ -317,7 +329,7 @@ body {
     margin-bottom: 50px;
     padding-bottom: 20px;
     border-radius: 5px;
-    width: 60%;
+    width: 225px;
     height: 50px;
     background: fade(#fff, 50%);
     .hei {
@@ -356,4 +368,18 @@ body {
       text-shadow: 0 0 2px @default-bg-color;
     }
   }
+}
+// 提示层
+.m-tips-msg {
+  position: fixed;
+  z-index: 11;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -280%);
+  transform: translate(-50%, -280%);
+  border-radius: 6px;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, .5);
+  font-size: 14px;
+  color: #fff;
 }

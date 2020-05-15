@@ -1,0 +1,321 @@
+html,
+body,
+div {
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url(../img/paper.jpg);
+}
+#app,
+.g-grid,
+.s-con,
+.g-light-lamps {
+  width: 375px;
+  height: 667px;
+}
+.tit {
+  padding: 20px 0 15px;
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+}
+.des {
+  padding: 0 15px;
+  text-align: center;
+  color: #333;
+}
+.g-grid .g-stage {
+  position: relative;
+  padding-top: 100%;
+}
+.g-grid .g-stage .list {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  bottom: 15px;
+  left: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.g-grid .g-stage .list .row {
+  display: flex;
+}
+.g-grid .g-stage .list .row .col {
+  position: relative;
+  flex: 1;
+  box-sizing: border-box;
+}
+.g-grid .g-stage .list .row .col .border {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 2px solid #333;
+  border-right: none;
+  border-bottom: none;
+  cursor: pointer;
+}
+.g-grid .g-stage .list .row .col .borderBottom {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid #333;
+}
+.g-grid .g-stage .list .row .col .borderRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 2px solid #333;
+}
+.g-grid .g-stage .list .row .col .checked {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid #fe484c;
+  width: 50%;
+  height: 50%;
+}
+.g-grid .g-stage .list .row .col .tips {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+.g-light-lamps .l-con {
+  position: relative;
+  padding-top: 100%;
+}
+.g-light-lamps .l-con .lamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform-origin: 50% 250%;
+  transform-origin: 50% 250%;
+  -webkit-transform: translate(-50%, -200%) scale(0.75);
+  transform: translate(-50%, -200%) scale(0.75);
+  width: 60px;
+  height: 80px;
+}
+.g-light-lamps .l-con .lamp .ball {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 50%;
+  margin-left: -24px;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  background: #e7e7e7;
+}
+.g-light-lamps .l-con .lamp .mask {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 50%;
+  transform: translate(-200%, 100%) skewX(-20deg);
+  border-radius: 4px;
+  width: 8px;
+  height: 8px;
+  background: #fafafa;
+}
+.g-light-lamps .l-con .lamp .oval {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  -webkit-transform: rotateY(43deg);
+  transform: rotateY(43deg);
+  margin-left: -24px;
+  border-radius: 24px;
+  width: 48px;
+  height: 48px;
+  background: #e7e7e7;
+}
+.g-light-lamps .l-con .lamp .fan {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  margin-top: -7px;
+  margin-left: -14px;
+  border-radius: 0 0 20px 20px;
+  width: 28px;
+  height: 6px;
+  background: #d3d3d3;
+}
+.g-light-lamps .l-con .lamp .rect {
+  position: absolute;
+  top: 55px;
+  left: 50%;
+  margin-left: -11px;
+  width: 22px;
+  height: 15px;
+  background: #d3d3d3;
+}
+.g-light-lamps .l-con .lamp .r1 {
+  position: absolute;
+  z-index: 1;
+  top: 61px;
+  left: 50%;
+  transform: rotateZ(-5deg);
+  margin-left: -12px;
+  border-radius: 1px;
+  width: 24px;
+  height: 2px;
+  background: #dddddd;
+}
+.g-light-lamps .l-con .lamp .r2 {
+  position: absolute;
+  z-index: 1;
+  top: 61px;
+  left: 50%;
+  transform: rotateZ(-5deg);
+  margin-left: -12px;
+  border-radius: 1px;
+  width: 24px;
+  height: 2px;
+  background: #dddddd;
+  top: 65px;
+}
+.g-light-lamps .l-con .lamp .r3 {
+  position: absolute;
+  z-index: 1;
+  top: 61px;
+  left: 50%;
+  transform: rotateZ(-5deg);
+  margin-left: -12px;
+  border-radius: 1px;
+  width: 24px;
+  height: 2px;
+  background: #dddddd;
+  top: 69px;
+}
+.g-light-lamps .l-con .lamp .triangle {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  -webkit-transform: rotateZ(-5deg);
+  transform: rotateZ(-5deg);
+  margin-left: -10px;
+  border: 8px solid transparent;
+  border-left-width: 11px;
+  border-right-width: 11px;
+  border-top-color: #ddd;
+}
+.g-light-lamps .l-con .lamp .triangleBlack {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  -webkit-transform: rotateZ(-5deg);
+  transform: rotateZ(-5deg);
+  margin-left: -10px;
+  border: 8px solid transparent;
+  border-left-width: 11px;
+  border-right-width: 11px;
+  border-top-color: #ddd;
+  -webkit-transform-origin: center center;
+  transform-origin: center center;
+  -webkit-transform: scale(0.5) rotateZ(-5deg);
+  transform: scale(0.5) rotateZ(-5deg);
+  border-top-color: #444;
+}
+.g-light-lamps .l-con .lamp.light .ball,
+.g-light-lamps .l-con .lamp.light .oval {
+  background: #ffe31e;
+  box-shadow: 0 -5px 10px rgba(255, 227, 30, 0.5);
+}
+.btns {
+  position: relative;
+  padding: 0 15px;
+}
+.btns .btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  height: 44px;
+  font-size: 16px;
+  color: #fff;
+  background: #00a0e9;
+  cursor: pointer;
+}
+.btns .btn.empty {
+  border: 1px solid #00a0e9;
+  background: #fff;
+  color: #00a0e9;
+}
+.select-diff {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+}
+.select-diff .s-tit {
+  padding: 20px 0 15px;
+  text-align: center;
+  font-size: 24px;
+  color: #fff;
+}
+.select-diff .s-subtit {
+  text-align: center;
+  font-size: 20px;
+  color: #fff;
+}
+.select-diff .s-list {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 0 15px;
+}
+.select-diff .s-list .s-item {
+  flex: 0 0 48%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  border-radius: 6px;
+  height: 40px;
+  background: #fff;
+  font-size: 16px;
+  color: #000;
+  opacity: 0.75;
+  cursor: pointer;
+}
+.m-tips-msg {
+  position: fixed;
+  z-index: 11;
+  top: 50%;
+  left: 50%;
+  /* -webkit-transform: translate(-50%, -198%);
+  transform: translate(-50%, -198%); */
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  border-radius: 6px;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  color: #fff;
+}
