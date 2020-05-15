@@ -139,8 +139,8 @@ body {
   position: absolute;
   top: 12px;
   left: 50%;
-  -webkit-transform: rotateY(43deg);
-  transform: rotateY(43deg);
+  -webkit-transform: translateZ(-10px) rotateY(43deg);
+  transform: translateZ(-10px) rotateY(43deg);
   margin-left: -24px;
   border-radius: 24px;
   width: 48px;
@@ -149,6 +149,7 @@ body {
 }
 .g-light-lamps .l-con .lamp .fan {
   position: absolute;
+  z-index: 1;
   top: 60px;
   left: 50%;
   margin-top: -7px;
