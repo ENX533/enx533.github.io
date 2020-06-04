@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
+  <!-- 删除ios的工具栏和菜单栏 Yes 不知道有什么具体作用 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>记忆大考验</title>
+  <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+  <div id="app" class="c-app" :style="{transform: 'scale(' + screenScale + ')'}">
+    <!-- 加载资源界面 -->
+    <div class="c-loading" v-if="!isLoaded">
+      <!-- <span>isLoaded: {{isLoaded}}</span> -->
+
+      <span>加载中</span>
+      <span>{{nResourcesLoadedCount + '/' + nResourcesCount}}</span>
+      <span>，请稍候</span>
+      <span class="dot dot1"></span>
+      <span class="dot dot2"></span>
+      <span class="dot dot3"></span>
+    </div>
+    <!-- 游戏舞台 -->
+    <div class="c-stage" v-else>
+      <!-- 选择难度 -->
+      <div class="c-select-diff" v-show="bSelectDiff">
+        <div class="c-title">记忆大考验</div>
+        <div class="c-subtitle">选择难度</div>
+        <div class="c-btn c-btn-empty" @click="onSelectDiff(2)">萌新</div>
+        <div class="c-btn c-btn-empty" @click="onSelectDiff(4)">菜鸡</div>
+        <div class="c-btn c-btn-empty" @click="onSelectDiff(6)">高人</div>
+        <div class="c-btn c-btn-empty" @click="onSelectDiff(8)">大触</div>
+      </div>
+      <!-- 玩游戏 -->
+      <div class="c-playing" v-show="!bSelectDiff">
+        <div class="c-title">记忆大考验</div>
+        <div class="c-subtitle" v-text="sTips"></div>
+        <div class="c-game">
+          <div class="c-game-con">
+            <div class="c-g-row" v-for="(row, index1) in aGameArr" :key="index1">
+              <div class="c-g-col" v-for="(item, index2) in row" :key="index2">
+                <div class="c-g-item" :class="{active: item.active}" :style="{padding: (6 - nDiff / 2) + 'px'}"
+                  @click="onClickItem(index1, index2)">
+                  <div class="back" :style="{padding: (6 - nDiff / 2) + 'px'}"></div>
+                  <img class="front" :src="item.imgSrc" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 进度显示 -->
+        <div class="c-rate-of-process">
+          <div class="left">翻开次数：{{nClickCount}}</div>
+          <div class="right">进度：{{nFinishedCount}}/{{nDiff * nDiff}}</div>
+        </div>
+        <!-- 按钮 -->
+        <div class="c-btns">
+          <!-- 开始游戏 -->
+          <!-- <div v-if="!bSuss" class="c-btn" :class="{'c-btn-disable': !bEnableStartBtn}" @click="onStart">开始游戏</div> -->
+          <!-- <div v-else class="c-btn c-btn-empty" @click="onRestart">重新开始</div> -->
+          <div class="c-btn c-btn-empty" @click="onRestart">重新开始</div>
+          <div class="c-btn" @click="bSelectDiff = true">重选难度</div>
+        </div>
+      </div>
+    </div>
+    <!-- 资源占位 -->
+    <div class="c-resources-place">
+      <img v-for="(item, index) in aResource" :key="index" :src="item" alt="">
+    </div>
+    <!-- 悬浮提示层 -->
+    <div class="m-tips-msg" v-show="mTipsMsg">
+      {{mTipsMsg}}
+    </div>
+  </div>
+  <script src="./js/vue.min.js"></script>
+  <script>
+    // 原生js小游戏，code by 429457385@qq.com
+    new Vue({
+      el: '#app',
+      computed: {
+        isLoaded: function () {
+          if (
+            this.nResourcesCount !== 0 &&
+            this.nResourcesCount === this.nResourcesLoadedCount
+          ) return true;
+          return false
+        },
+        bSuss: function () {
+          if (this.nDiff * this.nDiff === this.nFinishedCount) return true
+          return false;
+        }
+      },
+      data() {
+        return {
+          // 图片资源
+          aResource: (function () {
+            var arr = [];
+            arr.push('./img/bg.jpg');
+            for (var i = 1; i < 37; i++) {
+              arr.push('./img/' + i + '.png');
+            }
+            return arr;
+          })(),
+          // 加载进度相关
+          nResourcesCount: 0, // 资源总数
+          nResourcesLoadedCount: 0, // 已加载完成资源数
+          // 选择难度和初始化游戏相关
+          bSelectDiff: true, // 选择难度界面
+          nDiff: 2, // 选择的难度
+          aGamePic: [], // 游戏使用的图片
+          aGameArr: [], // 游戏数组对象
+          // 游戏操作相关
+          bEnableStartBtn: true, // 开始按钮可点击
+          bPlaying: false, // 标记游戏开始状态
+          nClickCount: 0, // 翻开次数
+          nFinishedCount: 0, // 完成个数
+          oFirstClicked: {}, // 第一个点击对象
+          oSecondClicked: {}, // 第二个点击对象
+          timer: null, // 定时器 游戏开始时的动画
+          sTips: '准备好了？请点击“开始游戏”', // 提示文字
+          // 屏幕缩放相关
+          screenScale: 1, // 界面根据屏幕大小缩放比例
+          // 悬浮提示层相关
+          mTipsMsg: '', // 会消失的屏幕中间提示文字
+          timer1: null // 屏幕中间提示文字的定时器
+        }
+      },
+      mounted() {
+        // 棋盘界面由css布局，无需写方法
+        // 初始化
+        this.init();
+        this.getScreenScale();
+        window.removeEventListener('resize', this.getScreenScale);
+        window.addEventListener('resize', this.getScreenScale);
+      },
+      methods: {
+        // 深度克隆
+        deepClone: function (target) {
+          // 定义一个变量
+          let result;
+          // 如果当前需要深拷贝的是一个对象的话
+          if (typeof target === 'object') {
+            // 如果是一个数组的话
+            if (Array.isArray(target)) {
+              result = []; // 将result赋值为一个数组，并且执行遍历
+              for (let i in target) {
+                // 递归克隆数组中的每一项
+                result.push(this.deepClone(target[i]))
+              }
+              // 判断如果当前的值是null的话；直接赋值为null
+            } else if (target === null) {
+              result = null;
+              // 判断如果当前的值是一个RegExp对象的话，直接赋值
+            } else if (target.constructor === RegExp) {
+              result = target;
+            } else {
+              // 否则是普通对象，直接for in循环，递归赋值对象的所有值
+              result = {};
+              for (let i in target) {
+                result[i] = this.deepClone(target[i]);
+              }
+            }
+            // 如果不是对象的话，就是基本数据类型，那么直接赋值
+          } else {
+            result = target;
+          }
+          // 返回最终结果
+          return result;
+        },
+        // 初始化
+        init: function () {
+          this.bSelectDiff = true;
+          // 加载资源 然后进行游戏难度选择
+          this.nResourcesCount = this.aResource.length;
+          this.onLoadResource();
+        },
+        // 加载资源
+        onLoadResource: function () {
+          var _this = this;
+          _this.nResourcesLoadedCount = 0;
+          for (var i = 0; i < this.aResource.length; i++) {
+            var oImg = new Image();
+            oImg.onload = function () {
+              _this.nResourcesLoadedCount++;
+              // console.log(_this.nResourcesLoadedCount);
+            }
+            oImg.src = this.aResource[i];
+          }
+        },
+        // 选择难度
+        onSelectDiff: function (num) {
+          var _this = this;
+          this.nDiff = num;
+
+          this.sTips = '准备好了？请点击“开始游戏”'
+          this.mTipsMsg = '';
+          clearTimeout(this.timer1);
+          this.timer1 = null;
+          this.bEnableStartBtn = true;
+          this.bPlaying = false;
+          this.nClickCount = 0;
+          this.nFinishedCount = 0;
+          this.oFirstClicked = {};
+          this.oSecondClicked = {};
+          clearInterval(this.timer);
+          this.timer = null;
+
+          if (this.aGameArr.length) {
+            this.aGameArr = [];
+          }
+          this.initGamePic();
+          this.onStart();
+          this.bSelectDiff = false;
+        },
+        // 初始化游戏用的图片数据
+        initGamePic: function () {
+          this.aGamePic = [];
+          this.aGameArr = [];
+          var aGamePic = [];
+          var aGamePicDouble = [];
+          var aGameArr = [];
+          var aResource = this.aResource;
+          var nPicCount = this.nDiff * this.nDiff / 2;
+          // 获取使用的图片
+          while (nPicCount !== aGamePic.length) {
+            var nRandom = Math.floor(Math.random() * aResource.length);
+            if (
+              aResource[nRandom] !== './img/bg.jpg' &&
+              aGamePic.indexOf(aResource[nRandom]) === -1
+            ) {
+              aGamePic.push(aResource[nRandom]);
+            }
+          }
+          // 图片分身 双倍
+          aGamePicDouble = [].concat(aGamePic, aGamePic);
+          // 打乱顺序
+          for (var i = 0; i < aGamePicDouble.length * 2; i++) {
+            var nRandom = Math.floor(Math.random() * aGamePicDouble.length) - 1;
+            var item = aGamePicDouble.splice(nRandom, 1);
+            aGamePicDouble = aGamePicDouble.concat(item);
+          }
+          // 初始化游戏数组
+          for (var i = 0; i < this.nDiff; i++) {
+            aGameArr[i] = [];
+            for (var j = 0; j < this.nDiff; j++) {
+              aGameArr[i][j] = {
+                imgSrc: aGamePicDouble[i * this.nDiff + j],
+                active: false
+              };
+            }
+          }
+          this.aGamePic = aGamePic;
+          this.aGameArr = aGameArr;
+        },
+        // 开始，展示动画 让玩家看一次底牌
+        onStart: function () {
+          if (!this.bEnableStartBtn) return;
+          this.bEnableStartBtn = false;
+          // 页面动画
+          var _this = this;
+          var times = 0;
+          var max = _this.nDiff * _this.nDiff; // 2*2=4
+          var n = 3;
+          this.timer = setInterval(function () {
+            var aGameArr = _this.deepClone(_this.aGameArr);
+            if (times < max) {
+              // 当前的翻开
+              var col = times % _this.nDiff;;
+              var row = (times - col) / _this.nDiff;
+              if (aGameArr[row][col]) aGameArr[row][col].active = true;
+            }
+            if (times > 1 && times < max + n) {
+              // 往前数n个那个盖上
+              var pprevTimes = times - n;
+              var ppCol = pprevTimes % _this.nDiff;;
+              var ppRow = (pprevTimes - ppCol) / _this.nDiff;
+              if (aGameArr[ppRow][ppCol]) aGameArr[ppRow][ppCol].active = false;
+            }
+            _this.aGameArr = aGameArr;
+            if (times === max + n) {
+              _this.bPlaying = true;
+              _this.sTips = '请翻开两张相同的牌';
+              clearInterval(_this.timer);
+              _this.timer = null;
+            }
+            times++;
+          }, 300);
+        },
+        // 点击翻转图片
+        onClickItem: function (row, col) {
+          if (
+            !this.bPlaying ||
+            (this.oFirstClicked.imgSrc && this.oSecondClicked.imgSrc) ||
+            this.aGameArr[row][col].active
+          ) return;
+          var _this = this;
+          this.nClickCount++;
+          var aGameArr = this.deepClone(this.aGameArr);
+          if (!this.oFirstClicked.imgSrc) {
+            this.oFirstClicked = {
+              row: row,
+              col: col,
+              imgSrc: aGameArr[row][col].imgSrc
+            };
+            aGameArr[row][col].active = true;
+            this.aGameArr = aGameArr;
+          } else {
+            this.oSecondClicked = {
+              row: row,
+              col: col,
+              imgSrc: aGameArr[row][col].imgSrc
+            };
+            aGameArr[row][col].active = true;
+            this.aGameArr = aGameArr;
+            // 判断当前两个对象是否相等 延时是为了等待页面动画
+            // 是则清空对象，使得游戏可继续
+            // 否则两个对象翻转回来，再清空对象
+            _this.onJudgeEnd(); // 马上判断出游戏结束
+            this.timer = setTimeout(function () {
+              _this.onJudge(); // 判断出是否错误了，错误则翻面盖上
+            }, 600);
+          }
+
+          // oFirstClicked: {}, // 第一个点击对象
+          // oSecondClicked: {}, // 第二个点击对象
+        },
+        // 判断出游戏结束
+        onJudgeEnd: function () {
+          if (this.nFinishedCount + 2 === this.nDiff * this.nDiff) {
+            // 游戏结束！
+            this.nFinishedCount = this.nDiff * this.nDiff;
+            this.bPlaying = false;
+            var str = '你赢了！';
+            if (this.nFinishedCount === this.nClickCount) {
+              switch (this.nDiff) {
+                case 2:
+                  str = '哇哦~你是天才！'
+                  break;
+                case 4:
+                  str = '太强了，一杆清！';
+                  break;
+                case 6:
+                  str = '高手啊！请收下我的膝盖！';
+                  break;
+                case 8:
+                  str = '嘛，你是大触嘛，这很正常。';
+                  break;
+              }
+            }
+            this.sTips = str;
+            this.mTipsMsgSet(str, 3000);
+          }
+        },
+        // 判定当前两个翻转对象
+        onJudge: function () {
+          if (!this.oFirstClicked.imgSrc || !this.oSecondClicked.imgSrc) return;
+          if (this.oFirstClicked.imgSrc !== this.oSecondClicked.imgSrc) {
+            var aGameArr = this.deepClone(this.aGameArr);
+            aGameArr[this.oFirstClicked.row][this.oFirstClicked.col].active = false;
+            aGameArr[this.oSecondClicked.row][this.oSecondClicked.col].active = false;
+            this.aGameArr = aGameArr;
+          } else {
+            if (this.nFinishedCount !== this.nDiff * this.nDiff) this.nFinishedCount += 2;
+          }
+          this.oFirstClicked = {};
+          this.oSecondClicked = {};
+        },
+        // 提示层
+        mTipsMsgSet: function (str, time) {
+          if (!time) time = 300;
+          if (!str) return;
+          this.mTipsMsg = str;
+          clearTimeout(this.timer1);
+          this.timer1 = null;
+          this.timer1 = setTimeout(function () {
+            // console.timeEnd(str)
+            this.mTipsMsg = '';
+          }.bind(this), time);
+        },
+        // 缩放游戏界面
+        getScreenScale: function () {
+          var scaleX = window.innerWidth / 375
+          var scaleY = window.innerHeight / 667
+          var scaleSmaller = scaleX > scaleY ? scaleY : scaleX;
+          this.screenScale = scaleSmaller
+        },
+        // 重新开始
+        onRestart: function () {
+          this.onSelectDiff(this.nDiff);
+          this.onStart();
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
